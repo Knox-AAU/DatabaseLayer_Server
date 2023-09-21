@@ -5,6 +5,8 @@ go 1.21.0
 require github.com/gin-gonic/gin v1.9.1
 
 require (
+	github.com/Valgard/go-pcre v0.0.0-20200510215507-235e400e25e9 // indirect
+	github.com/Valgard/godotenv v0.0.0-20200511222744-8873b92a09c5 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
