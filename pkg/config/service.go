@@ -14,11 +14,7 @@ type AppConfig struct {
 }
 
 func LoadEnv(rootPath string, config *AppConfig) {
-	var (
-		err error
-	)
-	err = godotenv.Load(filepath.Join(strings.TrimSpace(rootPath), ".env"))
-	if err != nil {
+	if err := godotenv.Load(filepath.Join(strings.TrimSpace(rootPath), ".env")); err != nil {
 		log.Fatal(err)
 	}
 	config.VirtuosoURL = mustGetEnv("VIRTUOSO_URL")
