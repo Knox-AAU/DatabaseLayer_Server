@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Valgard/godotenv"
+	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {
