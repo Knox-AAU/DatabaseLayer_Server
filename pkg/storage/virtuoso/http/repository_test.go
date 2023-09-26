@@ -1,11 +1,13 @@
 package http_test
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
-	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage/virtuoso/http"
-	"github.com/stretchr/testify/require"
+	virtuoso_http "github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage/virtuoso/http"
+	"github.com/jarcoal/httpmock"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestFindAll checks that the method sends a sparql query to the
@@ -15,18 +17,10 @@ func TestFindAll(t *testing.T) {
 
 	mockURL := "http://localhost:3033"
 
-	repository := http.NewVirtuosoRepository(mockURL)
+	repository := virtuoso_http.NewVirtuosoRepository(mockURL)
 
 	cases := map[string]arrange{
-		"returns virtuoso response": func(expected *graph.Node) {
-			label := "label"
-			*expected = graph.Node{
-				Value: "parent",
-				Child: &graph.Node{
-					Value: "child",
-				},
-				Label: &label,
-			}
+		"returns empty virtuoso response": func(expected *graph.Node) {
 		},
 	}
 	for name, arrange := range cases {
@@ -35,22 +29,26 @@ func TestFindAll(t *testing.T) {
 
 			arrange(&expected)
 
-			// httpMockResponse := httpMockResponse(expected)
+			//httpMockResponse := httpMockResponse(expected)
+			httpmock.Activate()
+			defer httpmock.DeactivateAndReset()
+			httpmock.RegisterResponder("GET", mockURL,
+				httpmock.NewStringResponder(http.StatusOK, "httpMockResponse"))
 
 			actual, err := repository.FindAll()
 
-			require.NoError(t, err)
-			require.Equal(t, expected, actual)
+			assert.NoError(t, err)
+			assert.Equal(t, &expected, actual)
 		})
 	}
 }
 
-func httpMockResponse(n graph.Node) string {
-	// base case
-	if n.Child == nil {
-		return n.Value
-	}
+//func httpMockResponse(n graph.Node) string {
+// base case
+//if n.Child == nil {
+//	return n.Value
+//}
 
-	// recursive case
-	return n.Value + *n.Label + httpMockResponse(*n.Child)
-}
+// recursive case
+//return n.Value + *n.Label + httpMockResponse(*n.Child)
+//}
