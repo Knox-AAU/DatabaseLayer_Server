@@ -3,7 +3,7 @@ package rest
 import (
 	"net/http"
 
-	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/retrieval"
+	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,13 +11,8 @@ type Body struct {
 	Query string `json:"query"`
 }
 
-func QueryHandler(c *gin.Context, r retrieval.Service) {
-	body := Body{}
-	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	node, err := r.Query(body.Query)
+func GETallHandler(c *gin.Context, r graph.Service) {
+	node, err := r.FindAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -9,15 +9,15 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type AppConfig struct {
-	VirtuosoURL string
+type Repository struct {
+	VirtuosoServerURL string
 }
 
-func LoadEnv(rootPath string, config *AppConfig) {
+func LoadEnv(rootPath string, config *Repository) {
 	if err := godotenv.Load(filepath.Join(strings.TrimSpace(rootPath), ".env")); err != nil {
 		log.Fatal(err)
 	}
-	config.VirtuosoURL = mustGetEnv("VIRTUOSO_URL")
+	config.VirtuosoServerURL = mustGetEnv("VIRTUOSO_SERVER_URL")
 }
 
 func mustGetEnv(k string) string {
