@@ -55,3 +55,14 @@ func NewGetAllQuery() string {
 	}
 	LIMIT 100`
 }
+
+// VirtuosoToNode takes a virtuoso object and returns a Node
+func VirtuosoToNode(v *VirtuosoObject) *Node {
+	n := Node{
+		Value:    "root",
+		Children: &[]Node{},
+	}
+
+	// for _, b := range v.Results.Bindings {
+	return &n
+}
