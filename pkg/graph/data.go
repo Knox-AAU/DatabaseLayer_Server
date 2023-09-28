@@ -1,9 +1,17 @@
 package graph
 
+type DataType int
+
+const (
+	URI = iota
+	Literal
+)
+
 type Node struct {
-	Value    string  `json:"value"`
-	Label    *string `json:"label"`
-	Children *[]Node `json:"child"`
+	Value    string   `json:"value"`
+	Label    *string  `json:"label"`
+	Children *[]Node  `json:"child"`
+	DataType DataType `json:"datatype"`
 }
 
 type VirtuosoObject struct {

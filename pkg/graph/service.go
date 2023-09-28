@@ -57,12 +57,36 @@ func NewGetAllQuery() string {
 }
 
 // VirtuosoToNode takes a virtuoso object and returns a Node
-func VirtuosoToNode(v *VirtuosoObject) *Node {
-	n := Node{
-		Value:    "root",
-		Children: &[]Node{},
-	}
+func VirtuosoToNode(v *VirtuosoObject) *[]Node {
+	result := []Node{}
 
-	// for _, b := range v.Results.Bindings {
-	return &n
+	//for _, b := range v.Results.Bindings {
+
+	/*
+		bindingExists = false
+	*/
+
+	//for _, node := range result {
+
+	/*
+		if (binding.subject.value = node.value)
+			node.children.append(call helperfunction getNodeFromURI with b.object.value)
+			bindingExists = true
+			break
+	*/
+
+	//}
+
+	/*
+		if (bindingExists = false)
+			result.append(call helperfunction getNodeFromURI with b.subject.value)
+	*/
+	//}
+
+	return &result
+}
+
+// getNodeFromURI will recieve bindingattribute and toggle URI and literal, if URI will fetch nodes, if literal returns node without fetch
+func getNodeFromURI(switcher BindingAttribute) *Node {
+	return nil
 }
