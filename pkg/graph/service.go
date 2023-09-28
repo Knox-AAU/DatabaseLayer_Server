@@ -1,8 +1,12 @@
 package graph
 
+import (
+	"log"
+)
+
 // Service provides operations
 type Service interface {
-	FindAll() (*Node, error)
+	FindAll() (*VirtuosoObject, error)
 	Find(string) (*Node, error)
 	Delete(string) error
 	Update(*Node) error
@@ -11,7 +15,7 @@ type Service interface {
 
 // Repository sends queries and turns response from virtuoso server into a Node with eventual children
 type Repository interface {
-	FindAll() (*Node, error)
+	FindAll() (*VirtuosoObject, error)
 	Find(string) (*Node, error)
 	Delete(string) error
 	Update(*Node) error
@@ -28,7 +32,7 @@ func NewService(r Repository) Service {
 	return &service{r}
 }
 
-func (s *service) FindAll() (*Node, error) {
+func (s *service) FindAll() (*VirtuosoObject, error) {
 	return s.r.FindAll()
 }
 
@@ -56,34 +60,99 @@ func NewGetAllQuery() string {
 	LIMIT 100`
 }
 
-// VirtuosoToNode takes a virtuoso object and returns a Node
-func VirtuosoToNode(v *VirtuosoObject) *[]Node {
-	result := []Node{}
+// Read creates the node datastructure from a virtuoso response
+func (v *VirtuosoObject) Read() (*[]*Node, error) {
+	existingNodes := []*Node{}
+	for _, binding := range v.Results.Bindings {
+		var matchingNode *Node
 
-	//for _, b := range v.Results.Bindings {
+		for _, node := range existingNodes {
+			matchingNode = findDescendant(binding.Subject.Value, node)
+			if matchingNode != nil {
+				break
+			}
+		}
 
-	/*
-		bindingExists = false
-	*/
+		if matchingNode == nil {
+			existingNodes = append(existingNodes, newNode(binding.Subject))
+			continue
+		}
 
-	//for _, node := range result {
+		// found node from subject value, add object to its children,
+		// avoiding duplicates
+		childExists := false
+		for _, child := range *matchingNode.Children {
+			if child.Value == binding.Object.Value {
+				childExists = true
+				break
+			}
+		}
 
-	/*
-		if (binding.subject.value = node.value)
-			node.children.append(call helperfunction getNodeFromURI with b.object.value)
-			bindingExists = true
-			break
-	*/
+		if childExists {
+			continue
+		}
 
-	//}
+		*matchingNode.Children = append(*matchingNode.Children, newNode(binding.Object))
+	}
 
-	/*
-		if (bindingExists = false)
-			result.append(call helperfunction getNodeFromURI with b.subject.value)
-	*/
-	//}
+	return &existingNodes, nil
+}
 
-	return &result
+// newNode creates node from binding
+func newNode(bindingAttribute BindingAttribute) *Node {
+	dataType := URI
+
+	switch bindingAttribute.Type {
+	case "uri":
+		dataType = URI
+	case "literal":
+		dataType = Literal
+	case "bnode":
+		dataType = BNode
+	case "typed-literal":
+		dataType = TypedLiteral
+	default:
+		log.Fatalf("unknown datatype: %v", bindingAttribute.Type)
+	}
+
+	node := &Node{
+		Value:    bindingAttribute.Value,
+		DataType: DataType(dataType),
+		Children: &[]*Node{},
+	}
+	return node
+}
+
+// findDescendant goes through a node's childs recursively, returning nil or a node matching the passed value
+func findDescendant(value string, node *Node) *Node {
+	if node.Value == value {
+		return node
+	}
+
+	if node.Children == nil {
+		return nil
+	}
+
+	result := []*Node{}
+	for _, child := range *node.Children {
+		node := findDescendant(value, child)
+		if node == nil {
+			continue
+		}
+
+		result = append(result, node)
+	}
+
+	if len(result) > 1 {
+		log.Fatalf("internal error: node should never have multiple childs with value %s\n", value)
+		// return result[0]
+	}
+
+	if len(result) == 0 {
+		return nil
+	}
+
+	return result[0]
 }
 
 // getNodeFromURI will recieve bindingattribute and toggle URI and literal, if URI will fetch nodes, if literal returns node without fetch
