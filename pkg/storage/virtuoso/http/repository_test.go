@@ -13,6 +13,7 @@ import (
 // TestFindAll checks that the method sends a sparql query to the
 // virtuoso url and returns a formatted node from the response
 func TestFindAll(t *testing.T) {
+	assert.Equal(t, false, "not implemented")
 	type arrange func(*graph.Node)
 
 	mockURL := "http://localhost:3033"
