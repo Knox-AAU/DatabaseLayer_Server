@@ -15,6 +15,12 @@ type Node struct {
 	DataType DataType `json:"datatype"`
 }
 
+type Triple struct {
+	Subject   string
+	Predicate string
+	Object    string
+}
+
 type VirtuosoObject struct {
 	Results struct {
 		Bindings []struct {
