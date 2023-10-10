@@ -11,31 +11,33 @@ type Body struct {
 	Query string `json:"query"`
 }
 
-func MakeHandler(service graph.Service) *gin.Engine {
-	router := gin.Default()
-	router.GET("/get-all", func(c *gin.Context) {
-		GETallHandler(c, service)
-	})
-	return router
-}
-
-func GETallHandler(c *gin.Context, s graph.Service) {
-	virtuosoObject, err := s.FindAll()
+func GETallHandler(c *gin.Context, r graph.Service) {
+	// swagger:operation GET /get-all getAllTriples
+	//
+	// Returns all triples that exist on the database
+	//
+	// The endpoint is only intended to work temporarily, until more defined use cases are implemented.
+	//
+	// ---
+	// produces:
+	// - application/json
+	// responses:
+	//   '200':
+	//     description: all triples response
+	//     schema:
+	//       type: array
+	//       items:
+	//         "$ref": "#/definitions/Triple"
+	triples, err := r.FindAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	node, err := virtuosoObject.Read()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	if node == nil {
+	if triples == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "resource does not exist"})
 		return
 	}
 
-	c.JSON(http.StatusOK, virtuosoObject)
+	c.JSON(http.StatusOK, triples)
 }

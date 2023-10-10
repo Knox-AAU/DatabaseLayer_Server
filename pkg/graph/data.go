@@ -20,6 +20,7 @@ type Node struct {
 	DataType DataType `json:"datatype"`
 }
 
+// swagger:model
 type Triple struct {
 	Subject   BindingAttribute `json:"s"`
 	Predicate BindingAttribute `json:"p"`
@@ -33,12 +34,7 @@ type VirtuosoResponse struct {
 	}
 }
 
-type Binding struct {
-	Subject   BindingAttribute `json:"subject"`
-	Predicate BindingAttribute `json:"predicate"`
-	Object    BindingAttribute `json:"object"`
-}
-
+// swagger:model
 type BindingAttribute struct {
 	Type  string
 	Value string
