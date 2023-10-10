@@ -13,19 +13,19 @@ import (
 // TestFindAll checks that the method sends a sparql query to the
 // virtuoso url and returns a formatted node from the response
 func TestFindAll(t *testing.T) {
-	type arrange func(*graph.Node)
+	type arrange func(*[]graph.Triple)
 
 	mockURL := "http://localhost:3033"
 
 	repository := virtuoso_http.NewVirtuosoRepository(mockURL)
 
 	cases := map[string]arrange{
-		"returns empty virtuoso response": func(expected *graph.Node) {
+		"returns empty virtuoso response": func(expected *[]graph.Triple) {
 		},
 	}
 	for name, arrange := range cases {
 		t.Run(name, func(t *testing.T) {
-			expected := graph.Node{}
+			expected := []graph.Triple{}
 
 			arrange(&expected)
 
