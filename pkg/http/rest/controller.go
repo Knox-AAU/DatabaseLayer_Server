@@ -12,10 +12,32 @@ type Body struct {
 }
 
 func GETallHandler(c *gin.Context, r graph.Service) {
-	node, err := r.FindAll()
+	// swagger:operation GET /get-all getAllTriples
+	//
+	// Returns all triples that exist on the database
+	//
+	// The endpoint is only intended to work temporarily, until more defined use cases are implemented.
+	//
+	// ---
+	// produces:
+	// - application/json
+	// responses:
+	//   '200':
+	//     description: all triples response
+	//     schema:
+	//       type: array
+	//       items:
+	//         "$ref": "#/definitions/Triple"
+	triples, err := r.FindAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, node)
+
+	if triples == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource does not exist"})
+		return
+	}
+
+	c.JSON(http.StatusOK, triples)
 }

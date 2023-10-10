@@ -5,7 +5,6 @@ type DataType int
 const (
 	URI = iota
 	Literal
-	//hello
 )
 
 const (
@@ -17,10 +16,11 @@ const (
 type Node struct {
 	Value    string   `json:"value"`
 	Label    *string  `json:"label"`
-	Children *[]Node  `json:"child"`
+	Children *[]*Node `json:"child"`
 	DataType DataType `json:"datatype"`
 }
 
+// swagger:model
 type Triple struct {
 	Subject   BindingAttribute `json:"s"`
 	Predicate BindingAttribute `json:"p"`
@@ -34,6 +34,7 @@ type VirtuosoResponse struct {
 	}
 }
 
+// swagger:model
 type BindingAttribute struct {
 	Type  string
 	Value string
