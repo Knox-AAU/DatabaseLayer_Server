@@ -5,7 +5,6 @@ type DataType int
 const (
 	URI = iota
 	Literal
-	//hello
 )
 
 type Node struct {
