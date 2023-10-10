@@ -1,11 +1,13 @@
 package http
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
+	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage"
 )
 
 type virtuosoRepository struct {
@@ -18,35 +20,52 @@ func NewVirtuosoRepository(url string) graph.Repository {
 	}
 }
 
-func (r virtuosoRepository) FindAll() (*graph.VirtuosoObject, error) {
-	query := `/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}&format=json`
-	response, err := http.Get(r.VirtuosoServerURL + query)
+func (r virtuosoRepository) FindAll() (*[]graph.Triple, error) {
+	res, err := http.Get(r.VirtuosoServerURL + "?" + fomatQuery(storage.GetAll))
 	if err != nil {
-		return nil, fmt.Errorf("could not get response from virtuoso server: %v", err)
+		return nil, err
+	}
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(res.Body)
+
+	virtuosoRes := graph.VirtuosoResponse{}
+
+	err = json.Unmarshal(buf.Bytes(), &virtuosoRes)
+	if err != nil {
+		return nil, err
 	}
 
-	result := graph.VirtuosoObject{}
-
-	err = json.NewDecoder(response.Body).Decode(&result)
-	if err != nil {
-		return nil, fmt.Errorf("could not decode response from virtuoso server: %v", err)
-	}
-
-	return &result, nil
+	return virtuosoResponseToTriples(virtuosoRes), nil
 }
 
-func (r virtuosoRepository) Find(serviceQuery string) (*graph.Node, error) {
-	return &graph.Node{}, nil
+func (r virtuosoRepository) Find(serviceQuery string) (*[]graph.Triple, error) {
+	return &[]graph.Triple{}, nil
 }
 
 func (r virtuosoRepository) Delete(serviceQuery string) error {
 	return nil
 }
 
-func (r virtuosoRepository) Update(node *graph.Node) error {
+func (r virtuosoRepository) Update(node *graph.Triple) error {
 	return nil
 }
 
-func (r virtuosoRepository) Store(node *graph.Node) error {
+func (r virtuosoRepository) Create(node *graph.Triple) error {
 	return nil
+}
+
+// formatQuery adds necessary parameters for virtuoso
+func fomatQuery(query string) string {
+	params := url.Values{}
+	params.Add("query", query)
+	params.Add("format", "json")
+	return params.Encode()
+}
+
+func virtuosoResponseToTriples(response graph.VirtuosoResponse) *[]graph.Triple {
+	result := make([]graph.Triple, len(response.Results.Bindings))
+
+	copy(result, response.Results.Bindings)
+
+	return &result
 }

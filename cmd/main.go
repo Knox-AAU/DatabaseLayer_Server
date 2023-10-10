@@ -12,6 +12,6 @@ func main() {
 	config.LoadEnv("..", &appRepository)
 	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoServerURL)
 	service := graph.NewService(virtuosoRepository)
-	router := rest.MakeHandler(service)
+	router := rest.NewRouter(service)
 	router.Run(":8080")
 }
