@@ -21,7 +21,7 @@ func NewVirtuosoRepository(url string) graph.Repository {
 }
 
 func (r virtuosoRepository) FindAll() (*[]graph.Triple, error) {
-	res, err := http.Get(r.VirtuosoServerURL + "?" + fomatQuery(storage.GetAll))
+	res, err := http.Get(r.VirtuosoServerURL + "?" + formatQuery(storage.GetAll))
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (r virtuosoRepository) Create(node *graph.Triple) error {
 }
 
 // formatQuery adds necessary parameters for virtuoso
-func fomatQuery(query string) string {
+func formatQuery(query string) string {
 	params := url.Values{}
 	params.Add("query", query)
 	params.Add("format", "json")
