@@ -21,6 +21,8 @@ package main
 //go:generate swagger generate spec -m -o ./swagger.yaml
 
 import (
+	"log"
+
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest"
@@ -28,6 +30,7 @@ import (
 )
 
 func main() {
+	log.Printf("I am an AAU project that is deployed using Watchtower.\nhello world\nhello world\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nhello world :)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nhello world!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nhello there... o.o\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 	appRepository := config.Repository{}
 	config.LoadEnv("..", &appRepository)
 	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoServerURL)
@@ -35,6 +38,3 @@ func main() {
 	router := rest.NewRouter(service)
 	router.Run(":8080")
 }
-//this is a test
-
-
