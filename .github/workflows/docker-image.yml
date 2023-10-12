@@ -6,7 +6,7 @@ on:
   push:
     branches-ignore:
       - "*" # Ignore all branches
-      - "!main" # Except main
+      - "!main" # Except main 
     tags:
       - "*.*.*"
   pull_request:
