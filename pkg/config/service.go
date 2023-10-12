@@ -15,7 +15,7 @@ type Repository struct {
 
 func LoadEnv(rootPath string, config *Repository) {
 	if err := godotenv.Load(filepath.Join(strings.TrimSpace(rootPath), ".env")); err != nil {
-		log.Fatal(err)
+		log.Println("ignoring error when loading env file:", err)
 	}
 	config.VirtuosoServerURL = mustGetEnv("VIRTUOSO_SERVER_URL")
 }
