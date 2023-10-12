@@ -35,7 +35,7 @@ func (r virtuosoRepository) FindAll() (*[]graph.Triple, error) {
 		return nil, err
 	}
 
-	return virtuosoResponseToTriples(virtuosoRes), nil
+	return &virtuosoRes.Results.Bindings, nil
 }
 
 func (r virtuosoRepository) Find(serviceQuery string) (*[]graph.Triple, error) {
@@ -60,12 +60,4 @@ func fomatQuery(query string) string {
 	params.Add("query", query)
 	params.Add("format", "json")
 	return params.Encode()
-}
-
-func virtuosoResponseToTriples(response graph.VirtuosoResponse) *[]graph.Triple {
-	result := make([]graph.Triple, len(response.Results.Bindings))
-
-	copy(result, response.Results.Bindings)
-
-	return &result
 }
