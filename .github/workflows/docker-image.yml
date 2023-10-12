@@ -9,9 +9,6 @@ on:
       - "!main" # Except main 
     tags:
       - "*.*.*"
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 env:
