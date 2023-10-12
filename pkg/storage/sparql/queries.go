@@ -1,4 +1,4 @@
-package storage
+package sparql
 
 import (
 	"fmt"
