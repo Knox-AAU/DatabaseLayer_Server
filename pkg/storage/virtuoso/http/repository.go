@@ -7,7 +7,7 @@ import (
 	"net/url"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
-	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage"
+	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage/sparql"
 )
 
 type virtuosoRepository struct {
@@ -21,7 +21,7 @@ func NewVirtuosoRepository(url string) graph.Repository {
 }
 
 func (r virtuosoRepository) FindAll() (*[]graph.Triple, error) {
-	res, err := http.Get(r.VirtuosoServerURL + "?" + formatQuery(storage.GetAll))
+	res, err := http.Get(r.VirtuosoServerURL + "?" + formatQuery(sparql.GetAll))
 	if err != nil {
 		return nil, err
 	}
