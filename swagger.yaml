@@ -1,0 +1,47 @@
+basePath: /
+consumes:
+    - application/json
+definitions:
+    BindingAttribute:
+        properties:
+            Type:
+                type: string
+            Value:
+                type: string
+        type: object
+        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
+    Triple:
+        properties:
+            o:
+                $ref: '#/definitions/BindingAttribute'
+            p:
+                $ref: '#/definitions/BindingAttribute'
+            s:
+                $ref: '#/definitions/BindingAttribute'
+        type: object
+        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
+host: localhost:8080
+info:
+    description: This repository implements a server to facilitate communication on the KNOX pipeline.
+    title: Database Layer Server API.
+    version: 0.0.1
+paths:
+    /get-all:
+        get:
+            description: The endpoint is only intended to work temporarily, until more defined use cases are implemented.
+            operationId: getAllTriples
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: all triples response
+                    schema:
+                        items:
+                            $ref: '#/definitions/Triple'
+                        type: array
+            summary: Returns all triples that exist on the database
+produces:
+    - application/json
+schemes:
+    - http
+swagger: "2.0"

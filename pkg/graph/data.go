@@ -7,24 +7,35 @@ const (
 	Literal
 )
 
+const (
+	Subject   = "s"
+	Predicate = "p"
+	Object    = "o"
+)
+
 type Node struct {
 	Value    string   `json:"value"`
 	Label    *string  `json:"label"`
-	Children *[]Node  `json:"child"`
+	Children *[]*Node `json:"child"`
 	DataType DataType `json:"datatype"`
 }
 
-type VirtuosoObject struct {
-	Results struct {
-		Bindings []struct {
-			Subject   BindingAttribute `json:"subject"`
-			Predicate BindingAttribute `json:"predicate"`
-			Object    BindingAttribute `json:"object"`
-		} `json:"bindings"`
-	} `json:"results"`
+// swagger:model
+type Triple struct {
+	Subject   BindingAttribute `json:"s"`
+	Predicate BindingAttribute `json:"p"`
+	Object    BindingAttribute `json:"o"`
 }
 
+// VirtuosoResponse requires the json tags to match with the queries that are used to retrieve it.
+type VirtuosoResponse struct {
+	Results struct {
+		Bindings []Triple
+	}
+}
+
+// swagger:model
 type BindingAttribute struct {
-	Type  string `json:"type"`
-	Value string `json:"value"`
+	Type  string
+	Value string
 }
