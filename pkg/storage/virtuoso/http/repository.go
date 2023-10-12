@@ -25,13 +25,12 @@ func (r virtuosoRepository) FindAll() (*[]graph.Triple, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(res.Body)
 
 	virtuosoRes := graph.VirtuosoResponse{}
-
-	err = json.Unmarshal(buf.Bytes(), &virtuosoRes)
-	if err != nil {
+	if err := json.Unmarshal(buf.Bytes(), &virtuosoRes); err != nil {
 		return nil, err
 	}
 
