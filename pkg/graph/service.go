@@ -47,8 +47,3 @@ func (s *service) Update(n *Triple) error {
 func (s *service) Create(n *Triple) error {
 	return s.r.Create(n)
 }
-
-// getNodeFromURI will recieve bindingattribute and toggle URI and literal, if URI will fetch nodes, if literal returns node without fetch
-func getNodeFromURI(switcher BindingAttribute) *Node {
-	return nil
-}
