@@ -20,7 +20,7 @@ definitions:
                 $ref: '#/definitions/BindingAttribute'
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
-host: localhost:8080
+host: localhost:8000
 info:
     description: This repository implements a server to facilitate communication on the KNOX pipeline.
     title: Database Layer Server API.
