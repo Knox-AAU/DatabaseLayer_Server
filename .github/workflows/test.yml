@@ -8,6 +8,9 @@ on:
     branches-ignore:
       - "main" # Ignore main 
 
+env:
+  VIRTUOSO_SERVER_URL: ${{ secrets.VIRTUOSO_SERVER_URL }}
+
 jobs:
 
   test:
