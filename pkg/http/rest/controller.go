@@ -20,23 +20,30 @@ func getHandler(c *gin.Context, s graph.Service) {
 	// swagger:operation GET /get get get
 	//
 	// This endpoint allows for querying with filters.
-	// Example query: {{url}}/get?p=x&p=y&so=x&so=y
+	// Example query: {{url}}/get?p=x&p=y&s=x&s=y&o=x&o=y
 	// To query the whole graph, leave all parameters empty.
 	//
 	// ---
 	// produces:
 	// - application/json
 	// parameters:
-	// - name: so
+	// - name: s
 	//   in: query
-	//   description: Subject or Object
+	//   description: Subjects
+	//   required: false
+	//   type: array
+	//   items:
+	//     type: string
+	// - name: o
+	//   in: query
+	//   description: Objects
 	//   required: false
 	//   type: array
 	//   items:
 	//     type: string
 	// - name: p
 	//   in: query
-	//   description: Predicate
+	//   description: Predicates
 	//   required: false
 	//   type: array
 	//   items:
@@ -50,7 +57,8 @@ func getHandler(c *gin.Context, s graph.Service) {
 	//         "$ref": "#/definitions/Result"
 
 	edges := c.QueryArray("p")
-	nodes := c.QueryArray("so")
+	subjects := c.QueryArray("s")
+	objects := c.QueryArray("o")
 	_depth := c.DefaultQuery("depth", "0")
 
 	depth, err := strconv.Atoi(_depth)
@@ -60,12 +68,12 @@ func getHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	if err := validateQuery(edges, nodes, depth); err != nil {
+	if err := validateQuery(edges, subjects, objects, depth); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	query := sparql.Builder(nodes, edges, depth)
+	query := sparql.Builder(subjects, objects, edges, depth)
 	triples, err := s.Execute(query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -78,12 +86,12 @@ func getHandler(c *gin.Context, s graph.Service) {
 	})
 }
 
-func validateQuery(edges, nodes []string, depth int) error {
+func validateQuery(edges, subject, object []string, depth int) error {
 	if depth < 0 {
 		return fmt.Errorf("depth must be a positive integer, got %d", depth)
 	}
 
-	if len(edges) == 0 && len(nodes) == 0 && depth != 0 {
+	if len(edges) == 0 && len(subject) == 0 && len(object) == 0 && depth != 0 {
 		return fmt.Errorf("depth must be 0 if no edge or node is specified, got %d", depth)
 	}
 
