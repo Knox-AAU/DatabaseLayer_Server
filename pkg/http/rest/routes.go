@@ -7,8 +7,8 @@ import (
 
 func NewRouter(s graph.Service) *gin.Engine {
 	router := gin.Default()
-	router.GET("/get-all", func(c *gin.Context) {
-		GETallHandler(c, s)
+	router.GET("/get", func(c *gin.Context) {
+		getHandler(c, s)
 	})
 	return router
 }
