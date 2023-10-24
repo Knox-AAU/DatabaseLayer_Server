@@ -20,7 +20,9 @@ func getHandler(c *gin.Context, s graph.Service) {
 	// swagger:operation GET /get get get
 	//
 	// This endpoint allows for querying with filters.
+	//
 	// Example query: {{url}}/get?p=x&p=y&s=x&s=y&o=x&o=y
+	//
 	// To query the whole graph, leave all parameters empty.
 	//
 	// ---
