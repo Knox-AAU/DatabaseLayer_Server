@@ -42,17 +42,24 @@ paths:
     /get:
         get:
             description: |-
-                Example query: {{url}}/get?p=x&p=y&so=x&so=y
+                Example query: {{url}}/get?p=x&p=y&s=x&s=y&o=x&o=y
+
                 To query the whole graph, leave all parameters empty.
             operationId: get
             parameters:
-                - description: Subject or Object
+                - description: Subjects
                   in: query
                   items:
                     type: string
-                  name: so
+                  name: s
                   type: array
-                - description: Predicate
+                - description: Objects
+                  in: query
+                  items:
+                    type: string
+                  name: o
+                  type: array
+                - description: Predicates
                   in: query
                   items:
                     type: string
