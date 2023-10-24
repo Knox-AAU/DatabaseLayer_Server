@@ -7,18 +7,23 @@ const (
 	Literal
 )
 
+type Attribute string
+
 const (
-	Subject   = "s"
-	Predicate = "p"
-	Object    = "o"
+	Subject   Attribute = "s"
+	Predicate Attribute = "p"
+	Object    Attribute = "o"
 )
 
 // Triple requires the json tags to match with the queries that are used to retrieve it.
 // swagger:model
 type Triple struct {
-	Subject   BindingAttribute `json:"s"`
-	Predicate BindingAttribute `json:"p"`
-	Object    BindingAttribute `json:"o"`
+	// S is the subject
+	S BindingAttribute `json:"s"`
+	// P is the predicate
+	P BindingAttribute `json:"p"`
+	// O is the object
+	O BindingAttribute `json:"o"`
 }
 
 // swagger:model

@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
-	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage/sparql"
 	"github.com/gin-gonic/gin"
 )
 
@@ -58,9 +57,9 @@ func getHandler(c *gin.Context, s graph.Service) {
 	//       items:
 	//         "$ref": "#/definitions/Result"
 
-	edges := c.QueryArray(graph.Predicate)
-	subjects := c.QueryArray(graph.Subject)
-	objects := c.QueryArray(graph.Object)
+	edges := c.QueryArray(string(graph.Predicate))
+	subjects := c.QueryArray(string(graph.Subject))
+	objects := c.QueryArray(string(graph.Object))
 	_depth := c.DefaultQuery("depth", "0")
 
 	depth, err := strconv.Atoi(_depth)
@@ -75,7 +74,7 @@ func getHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	query := sparql.Builder(edges, subjects, objects, depth)
+	query := graph.Builder(edges, subjects, objects, depth)
 	triples, err := s.Execute(query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
