@@ -20,7 +20,7 @@ func NewVirtuosoRepository(url string) graph.Repository {
 }
 
 func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
-	res, err := http.Get(r.VirtuosoServerURL + "?" + formatQuery(query))
+	res, err := http.Get(r.VirtuosoServerURL + "?" + encode(query))
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +36,8 @@ func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
 	return virtuosoRes.Results.Bindings, nil
 }
 
-// formatQuery adds necessary parameters for virtuoso
-func formatQuery(query string) string {
+// encode adds necessary parameters for virtuoso
+func encode(query string) string {
 	params := url.Values{}
 	params.Add("query", query)
 	params.Add("format", "json")

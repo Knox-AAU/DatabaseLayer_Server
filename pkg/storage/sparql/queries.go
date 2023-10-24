@@ -6,6 +6,13 @@ import (
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 )
 
+type operator int
+
+const (
+	OR operator = iota
+	AND
+)
+
 var GetAll = fmt.Sprintf(`SELECT ?%s ?%s ?%s WHERE { ?%s ?%s ?%s }`,
 	graph.Subject, graph.Predicate, graph.Object, graph.Subject, graph.Predicate, graph.Object)
 
@@ -18,34 +25,46 @@ func Builder(edges, subjects, objects []string, depth int) string {
 		graph.Subject, graph.Predicate, graph.Object, graph.Subject, graph.Predicate, graph.Object)
 
 	if len(subjects) > 0 {
-		result += buildSubQuery(subjects, graph.Subject)
+		result += buildSubQuery(subjects, graph.Subject, OR)
 	}
 
 	if len(objects) > 0 {
 		if len(subjects) > 0 {
 			result += " && "
 		}
-		result += buildSubQuery(objects, graph.Object)
+		result += buildSubQuery(objects, graph.Object, OR)
 	}
 
 	if len(edges) > 0 {
 		if len(subjects) > 0 || len(objects) > 0 {
 			result += " && "
 		}
-		result += buildSubQuery(edges, graph.Predicate)
+		result += buildSubQuery(edges, graph.Predicate, OR)
 	}
 
 	result += ") . }"
 	return result
 }
 
-// buildSubQuery starts building the subquery with a ||
-func buildSubQuery(elements []string, attribute string) string {
+// buildSubQuery builds a subquery, encapsulated by paranthesis
+func buildSubQuery(elements []string, attribute string, _op operator) string {
+	if len(elements) == 0 {
+		return ""
+	}
+
 	result := "(" + buildContains(attribute, elements[0])
+	op := ""
+
+	switch _op {
+	case OR:
+		op = " || "
+	case AND:
+		op = " && "
+	}
 
 	elements = elements[1:]
 	for _, element := range elements {
-		result += " || " + buildContains(attribute, element)
+		result += op + buildContains(attribute, element)
 	}
 	return result + ")"
 }
