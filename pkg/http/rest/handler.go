@@ -58,9 +58,9 @@ func getHandler(c *gin.Context, s graph.Service) {
 	//       items:
 	//         "$ref": "#/definitions/Result"
 
-	edges := c.QueryArray("p")
-	subjects := c.QueryArray("s")
-	objects := c.QueryArray("o")
+	edges := c.QueryArray(graph.Predicate)
+	subjects := c.QueryArray(graph.Subject)
+	objects := c.QueryArray(graph.Object)
 	_depth := c.DefaultQuery("depth", "0")
 
 	depth, err := strconv.Atoi(_depth)
@@ -75,7 +75,7 @@ func getHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	query := sparql.Builder(subjects, objects, edges, depth)
+	query := sparql.Builder(edges, subjects, objects, depth)
 	triples, err := s.Execute(query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
