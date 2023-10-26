@@ -29,6 +29,7 @@ func TestAcceptance(t *testing.T) {
 func doRequest(path string, t *testing.T) (rest.Result, int) {
 	appRepository := config.Repository{}
 	config.LoadEnv("../../../", &appRepository)
+	log.Println("appRepository.VirtuosoServerURL", appRepository.VirtuosoServerURL)
 	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoServerURL)
 	service := graph.NewService(virtuosoRepository)
 	router := rest.NewRouter(service)
