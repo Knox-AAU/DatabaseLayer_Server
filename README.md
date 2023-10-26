@@ -69,9 +69,9 @@ The user who created the SSH key can then run the following command on the serve
 To deploy the docker image of the repository to the server a GitHub Action needs to be created. The GitHub workflow can be found as `Docker deploy image` under the Actions of this repository. The GitHub Action will trigger on pull requests to the main branch, and a docker image of the repository will be made and uploaded to the GitHub Containter Registry (ghcr.io). The image of the repository is built from the `Dockerfile` located in the repository. 
 
 # Authors
-Casper Bruun Christensen (caschr21@student.aau.dk)
-Emily Treadwell Pedersen (emiped21@student.aau.dk)
-Malthe Reipurth (mreipu21@student.aau.dk)
-Matthias Munch Jakobsen (mattja21@student.aau.dk)
-Moritz Marcus Hönscheidt (mhoens21@student.aau.dk)
-Rasmus Louie Jensen (rjen20@student.aau.dk)
+Casper Bruun Christensen (caschr21@student.aau.dk)  
+Emily Treadwell Pedersen (emiped21@student.aau.dk)  
+Malthe Reipurth (mreipu21@student.aau.dk)  
+Matthias Munch Jakobsen (mattja21@student.aau.dk)  
+Moritz Marcus Hönscheidt (mhoens21@student.aau.dk)  
+Rasmus Louie Jensen (rjen20@student.aau.dk)  
