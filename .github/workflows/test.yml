@@ -18,38 +18,33 @@ jobs:
     services:
       virtuoso:
         image: openlink/virtuoso-opensource-7
-        env:
-          SPARQL_UPDATE: true
-          DBA_PASSWORD: yourPassword
         ports:
+          - 1111:1111
           - 8890:8890
-        options: --health-cmd "curl -f http://localhost:8890/sparql || exit 1" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --name knox_virtuoso_db
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup RDF data
-        run: |
-          curl -d "uid=dba&pwd=yourPassword&query=INSERT DATA { GRAPH http://example.com { http://example.com/s http://example.com/p http://example.com/o } }" -H "Accept: application/sparql-results+json" http://localhost:8890/sparql
+      # - name: Setup RDF data
+      #   run: |
+      #     curl -d "uid=dba&pwd=yourPassword&query=INSERT DATA { GRAPH http://example.com { http://example.com/s http://example.com/p http://example.com/o } }" -H "Accept: application/sparql-results+json" http://localhost:8890/sparql
 
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Healthcheck for Virtuoso
-        run: |
-          until $(curl --output /dev/null --silent --head -- fail http://localhost:8890); do
-              echo "Waiting for Virtuoso..."
-              sleep 5
-          done
+      # - name: Healthcheck for Virtuoso
+      #   run: |
+      #     until $(curl --output /dev/null --silent --head -- fail http://localhost:8890); do
+      #         echo "Waiting for Virtuoso..."
+      #         sleep 5
+      #     done
 
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.21
-
-      - name: Display Go version
-        run: go version
 
       - name: Run Go Tests
         run: go test ./...
