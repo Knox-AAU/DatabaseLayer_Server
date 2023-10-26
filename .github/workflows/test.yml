@@ -14,14 +14,16 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
-
     services:
       virtuoso:
-        image: openlink/virtuoso-opensource-7
+        image: openlink/virtuoso-opensource-7:latest
+        env:
+          DBA_PASSWORD: qzu49svh
         ports:
           - 1111:1111
           - 8890:8890
-        options: --name knox_virtuoso_db
+        options: --name knox_virtuoso_db --volume "${{ github.workspace }}/knox_virtuoso_db:/database"
+
 
     steps:
       - name: Checkout code
