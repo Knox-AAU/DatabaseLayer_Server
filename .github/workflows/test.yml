@@ -24,8 +24,11 @@ jobs:
           - 8890:8890
         options: --name knox_virtuoso_db --volume "${{ github.workspace }}/knox_virtuoso_db:/database"
 
-
     steps:
+      - name: setup permissions for deletion after
+        run: sudo chown -R ${{ runner.user }}:$${ runner.group }} "${{ github.workspace}}/knox_virtuoso_db"
+
+      # ...your existing job steps...
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -50,3 +53,8 @@ jobs:
 
       - name: Run Go Tests
         run: go test ./...
+
+      - name: Delete database files
+        if: always()
+        run: |
+          sudo rm -rf "${{ github.workspace}}/knox_virtuoso_db"
