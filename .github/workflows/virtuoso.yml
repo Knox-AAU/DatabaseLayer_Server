@@ -24,8 +24,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Sleep for 30 seconds
+      - name: Sleep for 60 seconds
         run: sleep 30
+
+      - name: Show /etc/hosts
+        run: cat /etc/hosts
+
+      - name: Check Virtuoso reachability
+        run: ping -c 5 virtuoso
 
       - name: Test Virtuoso server
         id: test_virtuoso
