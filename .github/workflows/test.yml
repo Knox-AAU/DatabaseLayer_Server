@@ -18,6 +18,9 @@ jobs:
     services:
       virtuoso:
         image: openlink/virtuoso-opensource-7
+        env:
+          SPARQL_UPDATE: "true"
+          DEFAULT_GRAPH: "https://dbpedia.org/sparql"
         ports:
           - 8890:8890
         options: --health-cmd "curl -f http://localhost:8890/sparql || exit 1" --health-interval 10s --health-timeout 5s --health-retries 5
