@@ -9,7 +9,7 @@ on:
       - "main" 
 
 env:
-  VIRTUOSO_SERVER_URL: ${{ secrets.VIRTUOSO_SERVER_URL }}
+  VIRTUOSO_SERVER_URL: http://virtuoso:8890/sparql
 
 jobs:
   setup:
@@ -28,8 +28,6 @@ jobs:
         run: sudo chmod -R 777 ${{ github.workspace }}/knox_virtuoso_db || true
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          clean: false
 
       - name: Setup Go
         uses: actions/setup-go@v2
