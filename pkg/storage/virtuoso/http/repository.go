@@ -3,6 +3,7 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -23,6 +24,10 @@ func NewVirtuosoRepository(url string) graph.Repository {
 func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
 	res, err := http.Get(r.VirtuosoServerURL + "?" + encode(query))
 	if err != nil {
+		for _, c := range r.VirtuosoServerURL {
+			fmt.Print(string(c) + ", ")
+		}
+		fmt.Print("\n")
 		log.Println("error when executing query:", err)
 		return nil, err
 	}
