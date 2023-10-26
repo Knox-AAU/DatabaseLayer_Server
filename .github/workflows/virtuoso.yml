@@ -27,8 +27,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # - name: Sleep for 30 seconds
-      #   run: sleep 30
+      - name: Sleep for 30 seconds
+        run: sleep 30
 
       - name: Test Virtuoso server
         id: test_virtuoso
