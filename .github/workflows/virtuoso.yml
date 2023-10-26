@@ -52,7 +52,7 @@ jobs:
       - name: Test Virtuoso server
         id: test_virtuoso
         run: |
-          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" localhost:8890/sparql)
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" http://localhost:8890/sparql)
           echo "::set-output name=response::$OUTPUT"
         shell: bash
 
