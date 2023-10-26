@@ -17,15 +17,10 @@ jobs:
 
     services:
       virtuoso:
-        image: openlink/virtuoso-opensource-7:latest
-        env:
-          DBA_PASSWORD: qzu49svh
+        image: openlink/virtuoso-opensource-7
         ports:
-          - 1111:1111
           - 8890:8890
-        volumes:
-          - .:/database
-        options: --interactive --tty
+        options: --health-cmd "curl -f http://localhost:8890/sparql || exit 1" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Checkout
