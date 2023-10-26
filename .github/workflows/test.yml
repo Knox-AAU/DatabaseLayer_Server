@@ -25,7 +25,9 @@ jobs:
         options: --name knox_virtuoso_db --volume "${{ github.workspace }}/knox_virtuoso_db:/database"
 
     steps:
-      - name: Checkout
+      - name: Set permissions for virtuoso db directory
+        run: sudo chmod -R 777 ${{ github.workspace }}/knox_virtuoso_db || true
+      - name: Checkout code
         uses: actions/checkout@v2
         with:
           clean: false
