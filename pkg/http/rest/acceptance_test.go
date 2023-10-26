@@ -2,11 +2,8 @@ package rest_test
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
@@ -49,15 +46,4 @@ func doRequest(path string, t *testing.T) (rest.Result, int) {
 	require.NoError(t, err)
 
 	return actualResponse, response.StatusCode
-}
-
-func printDirContents(path string) {
-	files, err := os.ReadDir(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, f := range files {
-		fmt.Println(f.Name())
-	}
 }
