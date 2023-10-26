@@ -41,7 +41,7 @@ jobs:
         run: |
           wget -q https://github.com/vishnubob/wait-for-it/raw/master/wait-for-it.sh
           chmod +x wait-for-it.sh
-          ./wait-for-it.sh $HOST:$PORT -t 15
+          ./wait-for-it.sh localhost:8890 -t 15
 
       - name: Show /etc/hosts
         run: cat /etc/hosts
