@@ -24,6 +24,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
       - name: Sleep seconds
         run: sleep 10
 
@@ -33,3 +37,6 @@ jobs:
           OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" http://localhost:8890/sparql)
           echo "::set-output name=response::$OUTPUT"
         shell: bash
+
+      - name: Run Go Tests
+        run: go test ./...
