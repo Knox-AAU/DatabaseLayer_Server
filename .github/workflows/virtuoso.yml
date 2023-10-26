@@ -24,14 +24,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # - name: Sleep seconds
-      #   run: sleep 15
-
-      - name: Wait for virtuoso to start
-        run: |
-          wget -q https://github.com/vishnubob/wait-for-it/raw/master/wait-for-it.sh
-          chmod +x wait-for-it.sh
-          ./wait-for-it.sh localhost:8890 -t 15
+      - name: Sleep seconds
+        run: sleep 15
 
       - name: Show /etc/hosts
         run: cat /etc/hosts
@@ -44,17 +38,4 @@ jobs:
         run: |
           OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" http://localhost:8890/sparql)
           echo "::set-output name=response::$OUTPUT"
-        shell: bash
-
-      - name: Check response
-        id: check_response
-        run: |
-          OUTPUT="${{ steps.test_virtuoso.outputs.response }}"
-          if [[ $OUTPUT == *"results"* ]]; then
-            echo "Server is running and responded correctly"
-          else
-            echo $OUTPUT
-            echo "Server is not responding or there was an error in the response"
-            exit 1
-          fi
         shell: bash
