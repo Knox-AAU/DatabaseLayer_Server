@@ -47,6 +47,7 @@ jobs:
           if [[ $OUTPUT == *"results"* ]]; then
             echo "Server is running and responded correctly"
           else
+            echo OUTPUT
             echo "Server is not responding or there was an error in the response"
             exit 1
           fi
