@@ -8,6 +8,9 @@ on:
     branches-ignore:
       - "main"
 
+env:
+  VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -28,17 +31,16 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.21
+
       - name: Sleep seconds
         run: sleep 10
 
-      - name: Test Virtuoso server
+      - name: Health check
         id: test_virtuoso
         run: |
-          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" http://localhost:8890/sparql)
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" $VIRTUOSO_SERVER_URL)
           echo "::set-output name=response::$OUTPUT"
         shell: bash
 
       - name: Run Go Tests
-        env:
-          VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
         run: go test ./...
