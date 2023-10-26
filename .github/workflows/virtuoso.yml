@@ -8,9 +8,6 @@ on:
     branches-ignore:
       - "main"
 
-env:
-  VIRTUOSO_SERVER_URL: http://virtuoso:8890/sparql
-
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -33,7 +30,7 @@ jobs:
       - name: Test Virtuoso server
         id: test_virtuoso
         run: |
-          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" ${{ env.VIRTUOSO_SERVER_URL }})
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" http://virtuoso:8890/sparql)
           echo "::set-output name=response::$OUTPUT"
         shell: bash
 
