@@ -39,4 +39,6 @@ jobs:
         shell: bash
 
       - name: Run Go Tests
+        env:
+          VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
         run: go test ./...
