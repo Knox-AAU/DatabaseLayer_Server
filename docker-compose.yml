@@ -7,5 +7,3 @@ services:
       - "8080:8080"
     volumes:
       - .:/usr/src/app
-    
-    #command: go run cmd/main.go -b 0.0.0.0
