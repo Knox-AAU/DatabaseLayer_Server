@@ -25,13 +25,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Sleep seconds
-        run: sleep 15
-
-      - name: Show /etc/hosts
-        run: cat /etc/hosts
-
-      - name: Check Virtuoso reachability
-        run: ping -c 5 localhost
+        run: sleep 10
 
       - name: Test Virtuoso server
         id: test_virtuoso
