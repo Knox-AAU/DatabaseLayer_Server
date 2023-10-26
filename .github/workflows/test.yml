@@ -17,16 +17,22 @@ jobs:
 
     services:
       virtuoso:
-        image: openlink/virtuoso-opensource-7
+        image: tenforce/virtuoso:1.3.2-virtuoso7.2.5.1
         env:
-          SPARQL_UPDATE: "true"
-          DEFAULT_GRAPH: "https://dbpedia.org/sparql"
+          SPARQL_UPDATE: true
+          DBA_PASSWORD: yourPassword
         ports:
-          - 1111:1111
           - 8890:8890
         options: --health-cmd "curl -f http://localhost:8890/sparql || exit 1" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup RDF data
+        run: |
+          curl -d "uid=dba&pwd=yourPassword&query=INSERT DATA { GRAPH http://example.com { http://example.com/s http://example.com/p http://example.com/o } }" -H "Accept: application/sparql-results+json" http://localhost:8890/sparql
+
       - name: Checkout
         uses: actions/checkout@v2
 
