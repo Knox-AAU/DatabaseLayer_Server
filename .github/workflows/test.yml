@@ -3,43 +3,44 @@
 
 name: Test
 
-on: 
+on:
   push:
     branches-ignore:
-      - "main" 
+      - "main" # Ignore main
 
 env:
   VIRTUOSO_SERVER_URL: ${{ secrets.VIRTUOSO_SERVER_URL }}
 
 jobs:
-
-  build:
-    name: Build
+  setup:
     runs-on: ubuntu-latest
+    
+    services:
+      virtuoso:
+        image: openlink/virtuoso-opensource-7:latest
+        env: 
+          DBA_PASSWORD: qzu49svh
+        ports:
+          - 1111:1111
+          - 8890:8890
+        volumes:
+          - .:/database
+        options: --interactive --tty
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      - name: Check server is running
+        run: curl -s --retry 5 --retry-delay 5 ${{ secrets.VIRTUOSO_SERVER_URL }} | grep "Virtuoso"
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-        
-    - name: Pull Virtuoso Docker image
-      run: |
-        docker pull openlink/virtuoso-opensource-7:latest
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
 
-    - name: Run Virtuoso server
-      run: |
-        mkdir knox_virtuoso_db
-        docker run --name knox_virtuoso_db --interactive --tty --env DBA_PASSWORD=qzu49svh --publish 1111:1111 --publish  8890:8890 --volume ${{ github.workspace }}/knox_virtuoso_db:/database openlink/virtuoso-opensource-7:latest &
+      - name: Display Go version
+        run: go version
 
-    - name: Build and run tests in Docker container
-      run: |
-        docker build . -t myapp:latest
-        docker run --env VIRTUOSO_URL=http://localhost:8890/sparql myapp:latest go test ./...
-
-    - name: Stop Virtuoso server
-      run: |
-        docker stop knox_virtuoso_db
-        docker rm knox_virtuoso_db
+      - name: Run Go Tests
+        run: go test ./...
