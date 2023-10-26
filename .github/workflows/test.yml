@@ -22,6 +22,7 @@ jobs:
           SPARQL_UPDATE: "true"
           DEFAULT_GRAPH: "https://dbpedia.org/sparql"
         ports:
+          - 1111:1111
           - 8890:8890
         options: --health-cmd "curl -f http://localhost:8890/sparql || exit 1" --health-interval 10s --health-timeout 5s --health-retries 5
 
