@@ -39,7 +39,7 @@ jobs:
         run: |
           wget -q https://github.com/vishnubob/wait-for-it/raw/master/wait-for-it.sh
           chmod +x wait-for-it.sh
-          ./wait-for-it.sh virtuoso:8890 -t 0
+          ./wait-for-it.sh virtuoso:8890 -t 1
 
       - name: Run Go Tests
         run: go test ./...
