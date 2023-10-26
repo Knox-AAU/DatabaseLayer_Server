@@ -31,7 +31,7 @@ jobs:
         run: cat /etc/hosts
 
       - name: Check Virtuoso reachability
-        run: ping -c 5 virtuoso
+        run: ping -c 5 localhost
 
       - name: Test Virtuoso server
         id: test_virtuoso
