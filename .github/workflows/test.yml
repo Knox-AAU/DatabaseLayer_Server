@@ -14,11 +14,11 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
-    
+
     services:
       virtuoso:
         image: openlink/virtuoso-opensource-7:latest
-        env: 
+        env:
           DBA_PASSWORD: qzu49svh
         ports:
           - 1111:1111
@@ -31,8 +31,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Check server is running
-        run: curl -v --retry 5 --retry-delay 5 http://localhost:8890 || true
+      - name: Healthcheck for Virtuoso
+        run: |
+          until $(curl --output /dev/null --silent --head -- fail http://localhost:8890); do
+              echo "Waiting for Virtuoso..."
+              sleep 5
+          done
 
       - name: Setup Go
         uses: actions/setup-go@v2
