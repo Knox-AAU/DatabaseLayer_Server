@@ -10,6 +10,18 @@ definitions:
                 type: string
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
+    Result:
+        properties:
+            query:
+                type: string
+                x-go-name: Query
+            triples:
+                items:
+                    $ref: '#/definitions/Triple'
+                type: array
+                x-go-name: Triples
+        type: object
+        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest
     Triple:
         properties:
             o:
@@ -18,28 +30,53 @@ definitions:
                 $ref: '#/definitions/BindingAttribute'
             s:
                 $ref: '#/definitions/BindingAttribute'
+        title: Triple requires the json tags to match with the queries that are used to retrieve it.
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
-host: localhost:8000
+host: localhost:8080
 info:
     description: This repository implements a server to facilitate communication on the KNOX pipeline.
     title: Database Layer Server API.
     version: 0.0.1
 paths:
-    /get-all:
+    /get:
         get:
-            description: The endpoint is only intended to work temporarily, until more defined use cases are implemented.
-            operationId: getAllTriples
+            description: |-
+                Example query: {{url}}/get?p=x&p=y&s=x&s=y&o=x&o=y
+
+                To query the whole graph, leave all parameters empty.
+            operationId: get
+            parameters:
+                - description: Subjects
+                  in: query
+                  items:
+                    type: string
+                  name: s
+                  type: array
+                - description: Objects
+                  in: query
+                  items:
+                    type: string
+                  name: o
+                  type: array
+                - description: Predicates
+                  in: query
+                  items:
+                    type: string
+                  name: p
+                  type: array
             produces:
                 - application/json
             responses:
                 "200":
-                    description: all triples response
+                    description: filtered triples response
                     schema:
                         items:
-                            $ref: '#/definitions/Triple'
+                            $ref: '#/definitions/Result'
                         type: array
-            summary: Returns all triples that exist on the database
+            summary: This endpoint allows for querying with filters.
+            tags:
+                - get
 produces:
     - application/json
 schemes:
