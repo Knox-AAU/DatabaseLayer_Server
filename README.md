@@ -13,7 +13,12 @@ Go REST API with CRUD operations for Knox database
 
 
 # Branch protection rules
+
 The main branch of the repository is protected by branch protection rules, which ensures the code can build and is tested before it can be merged to the main branch. The branch protection rule requires pull requests before merging and status checks to pass before merging. The status checks are defined in the `test.yml` file from the Test workflow in GitHub Actions.
+
+# Debug Github Actions
+
+See this [CLI tool](https://github.com/nektos/act) to run Github Actions locally 
 
 # Generate new documentation based on code
 Run `swagger generate spec -m -o ./swagger.yaml` from the terminal or directly from the `main.go` file.
