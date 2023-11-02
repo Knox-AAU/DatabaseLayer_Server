@@ -3,7 +3,7 @@ package graph
 type DataType int
 
 const (
-	URI = iota
+	URI DataType = iota
 	Literal
 )
 
