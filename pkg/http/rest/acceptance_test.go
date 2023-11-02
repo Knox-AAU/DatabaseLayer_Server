@@ -16,7 +16,7 @@ import (
 func TestAcceptance(t *testing.T) {
 
 	input := "/get?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedQuery := "SELECT ?s ?p ?o WHERE { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }"
+	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
 	actualResponse, statusCode := doRequest(input, t)
 
 	require.Equal(t, http.StatusOK, statusCode)
@@ -25,9 +25,9 @@ func TestAcceptance(t *testing.T) {
 
 func doRequest(path string, t *testing.T) (rest.Result, int) {
 	appRepository := config.Repository{}
-	config.LoadEnv("../../../", &appRepository)
+	config.Load("../../../", &appRepository)
 	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoServerURL)
-	service := graph.NewService(virtuosoRepository)
+	service := graph.NewService(virtuosoRepository, appRepository.TestGraphURI)
 	router := rest.NewRouter(service)
 
 	const GET = "GET"
