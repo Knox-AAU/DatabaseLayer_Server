@@ -74,7 +74,7 @@ func getHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	query := graph.Builder(edges, subjects, objects, depth)
+	query := graph.Builder(edges, subjects, objects, depth, s.GetURI())
 	triples, err := s.Execute(query)
 	if err != nil {
 		msg := fmt.Sprintf("error executing query: %s", err.Error())
