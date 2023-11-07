@@ -1,5 +1,0 @@
-{
-	"virtuoso_server_url" : "http://localhost:8890/sparql",
-	"graph_uri"           : "http://localhost:8890/DAV",
-    "test_graph_uri"      : "http://testing"
-}
