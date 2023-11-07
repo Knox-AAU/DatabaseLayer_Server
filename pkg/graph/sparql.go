@@ -67,3 +67,16 @@ func buildSubQuery(elements []string, attribute Attribute, _op operator) string 
 func buildContains(attribute Attribute, element string) string {
 	return fmt.Sprintf(`contains(str(?%s), '%s')`, attribute, element)
 }
+
+// PostQueryBuilder creates the query needed to insert the triples into the virtuoso database
+func PostQueryBuilder(triples []Triple) string {
+	query := "INSERT DATA {\n"
+
+	for _, triple := range triples {
+		query += fmt.Sprintf("  %s %s %s .\n", triple.S.Value, triple.P.Value, triple.O.Value)
+	}
+
+	query += "}"
+
+	return query
+}

@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -86,6 +87,23 @@ func getHandler(c *gin.Context, s graph.Service) {
 		Triples: triples,
 		Query:   query,
 	})
+}
+
+func postHandler(c *gin.Context, s graph.Service) {
+	var tripleArray []graph.Triple
+
+	decoder := json.NewDecoder(c.Request.Body)
+	err := decoder.Decode(&tripleArray)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"could not pass JSON to triples": err.Error()})
+		return
+	}
+
+	graph.PostQueryBuilder(tripleArray)
+
+	if err != nil {
+
+	}
 }
 
 func validateQuery(edges, subject, object []string, depth int) error {
