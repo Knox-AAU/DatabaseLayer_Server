@@ -3,6 +3,8 @@ services:
   app:
     build: 
       dockerfile: Dockerfile
+    environment:
+      - VIRTUOSO_SERVER_URL=http://host.docker.internal:8890/sparql
     ports:
       - "8080:8080"
     volumes:
