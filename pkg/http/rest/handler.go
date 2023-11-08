@@ -99,11 +99,7 @@ func postHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	graph.PostQueryBuilder(tripleArray)
-
-	if err != nil {
-
-	}
+	s.ExecutePost(graph.PostQueryBuilder(tripleArray), tripleArray)
 }
 
 func validateQuery(edges, subject, object []string, depth int) error {

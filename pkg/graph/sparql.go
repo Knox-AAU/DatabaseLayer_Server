@@ -72,10 +72,11 @@ func buildContains(attribute Attribute, element string) string {
 func PostQueryBuilder(triples []Triple) string {
 	query := "INSERT DATA {\n"
 
-	for _, triple := range triples {
-		query += fmt.Sprintf("  %s %s %s .\n", triple.S.Value, triple.P.Value, triple.O.Value)
-	}
-
+	/*
+		for _, triple := range triples {																//This might not be needed since the http.Post()
+			query += fmt.Sprintf("  %s %s %s .\n", triple.S.Value, triple.P.Value, triple.O.Value)		//takes the triples in the request body
+		}
+	*/
 	query += "}"
 
 	return query

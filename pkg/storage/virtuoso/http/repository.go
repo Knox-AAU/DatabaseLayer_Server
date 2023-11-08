@@ -43,6 +43,27 @@ func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
 	return virtuosoRes.Results.Bindings, nil
 }
 
+func (r virtuosoRepository) ExecutePost(query string, tripleArray []graph.Triple) error {
+	jsonPayload, err := json.Marshal(tripleArray)
+	if err != nil {
+		log.Println("error marshalling JSON: ", err)
+		return err
+	}
+
+	buf := bytes.NewBuffer(jsonPayload)
+	res, err := http.Post(r.VirtuosoServerURL+"?"+query, "application/json", buf)
+	if err != nil {
+		for _, c := range r.VirtuosoServerURL {
+			fmt.Print(string(c) + ", ")
+		}
+		fmt.Print("\n")
+		log.Println("error when executing query: ", err)
+		return err
+	}
+	fmt.Println(res)
+	return nil
+}
+
 // encode adds necessary parameters for virtuoso
 func encode(query string) string {
 	params := url.Values{}

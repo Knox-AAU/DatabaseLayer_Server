@@ -2,11 +2,13 @@ package graph
 
 type Service interface {
 	Execute(string) ([]Triple, error)
+	ExecutePost(string, []Triple) error
 	GetURI() string
 }
 
 type Repository interface {
 	Execute(string) ([]Triple, error)
+	ExecutePost(string, []Triple) error
 }
 
 // service implements Service interface
@@ -22,6 +24,10 @@ func NewService(r Repository, uri string) Service {
 
 func (s *service) Execute(query string) ([]Triple, error) {
 	return s.r.Execute(query)
+}
+
+func (s *service) ExecutePost(query string, tripleArray []Triple) error {
+	return s.r.ExecutePost(query, tripleArray)
 }
 
 func (s *service) GetURI() string {
