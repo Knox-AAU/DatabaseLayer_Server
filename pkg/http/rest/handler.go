@@ -75,8 +75,8 @@ func getHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	query := graph.Builder(edges, subjects, objects, depth, s.GetURI())
-	triples, err := s.Execute(query)
+	query := s.GETBuilder(edges, subjects, objects, depth)
+	triples, err := s.ExecuteGET(query)
 	if err != nil {
 		msg := fmt.Sprintf("error executing query: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
@@ -99,7 +99,16 @@ func postHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	s.ExecutePost(graph.PostQueryBuilder(tripleArray), tripleArray)
+	if err := s.ExeutePOST(s.POSTBuilder(tripleArray), tripleArray); err != nil {
+		msg := fmt.Sprintf("error executing query: %s", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		return
+	}
+
+	c.JSON(http.StatusOK, Result{
+		Triples: nil,
+		Query:   s.POSTBuilder(tripleArray),
+	})
 }
 
 func validateQuery(edges, subject, object []string, depth int) error {

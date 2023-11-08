@@ -8,21 +8,32 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 )
 
 type virtuosoRepository struct {
-	VirtuosoServerURL string
+	VirtuosoServerURL config.VirtuosoURL
+	GraphURI          config.GraphURI
 }
 
-func NewVirtuosoRepository(url string) graph.Repository {
+// encode adds necessary parameters for virtuoso
+func encode(query string) string {
+	params := url.Values{}
+	params.Add("query", query)
+	params.Add("format", "json")
+	return params.Encode()
+}
+
+func NewVirtuosoRepository(url config.VirtuosoURL, graphURI config.GraphURI) graph.Repository {
 	return &virtuosoRepository{
 		VirtuosoServerURL: url,
+		GraphURI:          graphURI,
 	}
 }
 
-func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
-	res, err := http.Get(r.VirtuosoServerURL + "?" + encode(query))
+func (r virtuosoRepository) ExecuteGET(query string) ([]graph.Triple, error) {
+	res, err := http.Get(string(r.VirtuosoServerURL) + "?" + encode(query))
 	if err != nil {
 		for _, c := range r.VirtuosoServerURL {
 			fmt.Print(string(c) + ", ")
@@ -43,7 +54,7 @@ func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
 	return virtuosoRes.Results.Bindings, nil
 }
 
-func (r virtuosoRepository) ExecutePost(query string, tripleArray []graph.Triple) error {
+func (r virtuosoRepository) ExeutePOST(query string, tripleArray []graph.Triple) error {
 	jsonPayload, err := json.Marshal(tripleArray)
 	if err != nil {
 		log.Println("error marshalling JSON: ", err)
@@ -51,7 +62,7 @@ func (r virtuosoRepository) ExecutePost(query string, tripleArray []graph.Triple
 	}
 
 	buf := bytes.NewBuffer(jsonPayload)
-	res, err := http.Post(r.VirtuosoServerURL+"?"+query, "application/json", buf)
+	res, err := http.Post(string(r.VirtuosoServerURL)+"?"+query, "application/json", buf)
 	if err != nil {
 		for _, c := range r.VirtuosoServerURL {
 			fmt.Print(string(c) + ", ")
@@ -61,13 +72,6 @@ func (r virtuosoRepository) ExecutePost(query string, tripleArray []graph.Triple
 		return err
 	}
 	fmt.Println(res)
-	return nil
-}
 
-// encode adds necessary parameters for virtuoso
-func encode(query string) string {
-	params := url.Values{}
-	params.Add("query", query)
-	params.Add("format", "json")
-	return params.Encode()
+	return nil
 }
