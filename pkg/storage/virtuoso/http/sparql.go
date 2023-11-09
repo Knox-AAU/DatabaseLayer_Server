@@ -16,7 +16,7 @@ const (
 // POSTBuilder creates the query needed to insert the triples into the virtuoso database
 func (r virtuosoRepository) POSTBuilder(triples []graph.Triple) string {
 	query := "INSERT DATA {"
-	query += "    GRAPH <" + string(r.) + ">{"
+	query += "    GRAPH <" + string(r.GraphURI) + ">{"
 	for _, triple := range triples { //This might not be needed since the http.Post()
 		query += "        <" + triple.S.Value + triple.P.Value + triple.O.Value + ">.\n" //takes the triples in the request body
 	}

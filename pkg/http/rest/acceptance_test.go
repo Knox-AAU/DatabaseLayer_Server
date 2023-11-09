@@ -50,7 +50,7 @@ func TestAcceptancePOST(t *testing.T) {
 			},
 		},
 	}
-	expectedQuery := "need to specify expected query"
+	expectedQuery := "INSERT DATA {    GRAPH <"
 	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
 
 	require.Equal(t, http.StatusOK, statusCode)
