@@ -37,8 +37,16 @@ func TestAcceptancePOST(t *testing.T) {
 	body := []graph.Triple{
 		{
 			S: graph.BindingAttribute{
-				Type:  "uri",
-				Value: "http://example.com/subject",
+				Type:  "",
+				Value: "knox-kb01.srv.aau.dk/Barack_Obama",
+			},
+			P: graph.BindingAttribute{
+				Type:  "",
+				Value: "http://dbpedia.org/ontology/spouse",
+			},
+			O: graph.BindingAttribute{
+				Type:  "",
+				Value: "knox-kb01.srv.aau.dk/Michele_Obama",
 			},
 		},
 	}

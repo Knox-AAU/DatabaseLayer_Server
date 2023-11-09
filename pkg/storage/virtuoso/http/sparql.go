@@ -16,14 +16,11 @@ const (
 // POSTBuilder creates the query needed to insert the triples into the virtuoso database
 func (r virtuosoRepository) POSTBuilder(triples []graph.Triple) string {
 	query := "INSERT DATA {"
-
-	/*
-		for _, triple := range triples {																//This might not be needed since the http.Post()
-			query += fmt.Sprintf("  %s %s %s .\n", triple.S.Value, triple.P.Value, triple.O.Value)		//takes the triples in the request body
-		}
-	*/
-	query += "}"
-
+	query += "    GRAPH <" + string(r.) + ">{"
+	for _, triple := range triples { //This might not be needed since the http.Post()
+		query += "        <" + triple.S.Value + triple.P.Value + triple.O.Value + ">.\n" //takes the triples in the request body
+	}
+	query += "    }\n}"
 	return query
 }
 

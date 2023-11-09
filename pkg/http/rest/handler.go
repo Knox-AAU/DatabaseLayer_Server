@@ -1,10 +1,12 @@
 package rest
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 	"github.com/gin-gonic/gin"
@@ -92,10 +94,10 @@ func getHandler(c *gin.Context, s graph.Service) {
 func postHandler(c *gin.Context, s graph.Service) {
 	var tripleArray []graph.Triple
 
-	decoder := json.NewDecoder(c.Request.Body)
-	err := decoder.Decode(&tripleArray)
+	tripleArray, err := parseTriples(StreamToString(c.Request.Body))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"could not pass JSON to triples": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(
+			"could not parse request")})
 		return
 	}
 
@@ -121,4 +123,38 @@ func validateQuery(edges, subject, object []string, depth int) error {
 	}
 
 	return nil
+}
+
+func parseTriples(data string) ([]graph.Triple, error) {
+	// Remove unnecessary characters and split into individual triples
+	data = strings.ReplaceAll(data, "[", "")
+	data = strings.ReplaceAll(data, "]", "")
+	triples := strings.Split(data, ")")
+
+	var tripleArray []graph.Triple
+
+	for i, triple := range triples {
+		triples[i] = strings.ReplaceAll(triple, "(", "")
+		triples[i] = strings.ReplaceAll(triple, ")", "")
+		// Split the triple into subject, predicate, and object
+		tripleParts := strings.Split(strings.TrimSpace(triple), ",")
+		if len(tripleParts) == 3 {
+			test0 := strings.ReplaceAll(tripleParts[0], ",", "")
+			test1 := strings.ReplaceAll(tripleParts[1], ",", "")
+			test2 := strings.ReplaceAll(tripleParts[2], ",", "")
+			tripleArray[i].S.Value = strings.TrimSpace(test0)
+			tripleArray[i].P.Value = strings.TrimSpace(test1)
+			tripleArray[i].O.Value = strings.TrimSpace(test2)
+		} else {
+			return nil, fmt.Errorf("length of triples must be 3")
+		}
+	}
+
+	return tripleArray, nil
+}
+
+func StreamToString(stream io.Reader) string {
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(stream)
+	return buf.String()
 }
