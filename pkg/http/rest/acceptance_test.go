@@ -50,7 +50,7 @@ func TestAcceptancePOST(t *testing.T) {
 			},
 		},
 	}
-	expectedQuery := "INSERT DATA {    GRAPH <"
+	expectedQuery := "INSERT DATA {GRAPH <http://testing/>{<knox-kb01.srv.aau.dk/Barack_Obama> <http://dbpedia.org/ontology/spouse> <knox-kb01.srv.aau.dk/Michele_Obama>.}}}"
 	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
 
 	require.Equal(t, http.StatusOK, statusCode)
@@ -72,6 +72,13 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 	var err error
 	switch {
 	case _method != method("GET") && body != nil:
+		{
+			jsonPayload, err := json.Marshal(body)
+			require.NoError(t, err)
+
+			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
+		}
+	case _method != method("POST") && body != nil:
 		{
 			jsonPayload, err := json.Marshal(body)
 			require.NoError(t, err)
