@@ -2,11 +2,11 @@ package rest
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 	"github.com/gin-gonic/gin"
@@ -94,14 +94,14 @@ func getHandler(c *gin.Context, s graph.Service) {
 func postHandler(c *gin.Context, s graph.Service) {
 	var tripleArray []graph.Triple
 
-	tripleArray, err := parseTriples(StreamToString(c.Request.Body))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(
-			"could not parse request")})
+	decoder := json.NewDecoder(c.Request.Body)
+	if err := decoder.Decode(&tripleArray); err != nil {
+		msg := fmt.Sprintf("error parsing json body: %s", err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 
-	if err := s.ExeutePOST(s.POSTBuilder(tripleArray), tripleArray); err != nil {
+	if err := s.ExeutePOST(s.POSTBuilder(tripleArray)); err != nil {
 		msg := fmt.Sprintf("error executing query: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		return
@@ -125,7 +125,8 @@ func validateQuery(edges, subject, object []string, depth int) error {
 	return nil
 }
 
-func parseTriples(data string) ([]graph.Triple, error) {
+// Potential legacy code
+/* func parseTriples(data string) ([]graph.Triple, error) {
 	// Remove unnecessary characters and split into individual triples
 	data = strings.ReplaceAll(data, "[", "")
 	data = strings.ReplaceAll(data, "]", "")
@@ -139,19 +140,16 @@ func parseTriples(data string) ([]graph.Triple, error) {
 		// Split the triple into subject, predicate, and object
 		tripleParts := strings.Split(strings.TrimSpace(triple), ",")
 		if len(tripleParts) == 3 {
-			test0 := strings.ReplaceAll(tripleParts[0], ",", "")
-			test1 := strings.ReplaceAll(tripleParts[1], ",", "")
-			test2 := strings.ReplaceAll(tripleParts[2], ",", "")
-			tripleArray[i].S.Value = strings.TrimSpace(test0)
-			tripleArray[i].P.Value = strings.TrimSpace(test1)
-			tripleArray[i].O.Value = strings.TrimSpace(test2)
+			tripleArray[i].S.Value = strings.TrimSpace(strings.ReplaceAll(tripleParts[0], ",", ""))
+			tripleArray[i].P.Value = strings.TrimSpace(strings.ReplaceAll(tripleParts[1], ",", ""))
+			tripleArray[i].O.Value = strings.TrimSpace(strings.ReplaceAll(tripleParts[2], ",", ""))
 		} else {
 			return nil, fmt.Errorf("length of triples must be 3")
 		}
 	}
 
 	return tripleArray, nil
-}
+} */
 
 func StreamToString(stream io.Reader) string {
 	buf := new(bytes.Buffer)

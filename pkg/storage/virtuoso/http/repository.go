@@ -54,15 +54,9 @@ func (r virtuosoRepository) ExecuteGET(query string) ([]graph.Triple, error) {
 	return virtuosoRes.Results.Bindings, nil
 }
 
-func (r virtuosoRepository) ExeutePOST(query string, tripleArray []graph.Triple) error {
-	jsonPayload, err := json.Marshal(tripleArray)
-	if err != nil {
-		log.Println("error marshalling JSON: ", err)
-		return err
-	}
-
-	buf := bytes.NewBuffer(jsonPayload)
-	res, err := http.Post(string(r.VirtuosoServerURL)+"?"+query, "application/json", buf)
+func (r virtuosoRepository) ExeutePOST(query string) error {
+	insertQuery := []byte(query)
+	res, err := http.Post(string(r.VirtuosoServerURL), "application/sparql-update", bytes.NewBuffer(insertQuery))
 	if err != nil {
 		for _, c := range r.VirtuosoServerURL {
 			fmt.Print(string(c) + ", ")

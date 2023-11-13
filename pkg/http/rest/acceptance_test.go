@@ -25,7 +25,7 @@ const (
 func TestAcceptanceGET(t *testing.T) {
 	router := setupApp()
 	input := rest.GET + "?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
+	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing/> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
 	actualResponse, statusCode := doRequest(router, input, t, method("GET"), nil)
 
 	require.Equal(t, http.StatusOK, statusCode)
@@ -50,7 +50,7 @@ func TestAcceptancePOST(t *testing.T) {
 			},
 		},
 	}
-	expectedQuery := "INSERT DATA {GRAPH <http://testing/>{<knox-kb01.srv.aau.dk/Barack_Obama> <http://dbpedia.org/ontology/spouse> <knox-kb01.srv.aau.dk/Michele_Obama>.}}}"
+	expectedQuery := "INSERT DATA { <knox-kb01.srv.aau.dk/Barack_Obama> <http://dbpedia.org/ontology/spouse> <knox-kb01.srv.aau.dk/Michele_Obama>.}"
 	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
 
 	require.Equal(t, http.StatusOK, statusCode)
