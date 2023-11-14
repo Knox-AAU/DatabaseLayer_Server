@@ -25,7 +25,7 @@ const (
 func TestAcceptanceGET(t *testing.T) {
 	router := setupApp()
 	input := rest.GET + "?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
+	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing/> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
 	actualResponse, statusCode := doRequest(router, input, t, method("GET"), nil)
 
 	require.Equal(t, http.StatusOK, statusCode)
@@ -37,12 +37,20 @@ func TestAcceptancePOST(t *testing.T) {
 	body := []graph.Triple{
 		{
 			S: graph.BindingAttribute{
-				Type:  "uri",
-				Value: "http://example.com/subject",
+				Type:  "",
+				Value: "http://testing/Barack_Obama",
+			},
+			P: graph.BindingAttribute{
+				Type:  "",
+				Value: "http://dbpedia.org/ontology/spouse",
+			},
+			O: graph.BindingAttribute{
+				Type:  "",
+				Value: "http://testing/Michelle_Obama",
 			},
 		},
 	}
-	expectedQuery := "need to specify expected query"
+	expectedQuery := "INSERT DATA { <http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.}"
 	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
 
 	require.Equal(t, http.StatusOK, statusCode)
@@ -64,6 +72,13 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 	var err error
 	switch {
 	case _method != method("GET") && body != nil:
+		{
+			jsonPayload, err := json.Marshal(body)
+			require.NoError(t, err)
+
+			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
+		}
+	case _method != method("POST") && body != nil:
 		{
 			jsonPayload, err := json.Marshal(body)
 			require.NoError(t, err)

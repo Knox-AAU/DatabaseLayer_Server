@@ -2,7 +2,7 @@ package graph
 
 type Service interface {
 	ExecuteGET(string) ([]Triple, error)
-	ExeutePOST(string, []Triple) error
+	ExeutePOST(string) error
 	GETBuilder([]string, []string, []string, int) string
 	POSTBuilder([]Triple) string
 }
@@ -10,7 +10,7 @@ type Service interface {
 type Repository interface {
 	// Execute executes a SPARQL query and returns the response from the repository
 	ExecuteGET(string) ([]Triple, error)
-	ExeutePOST(string, []Triple) error
+	ExeutePOST(string) error
 	// GETBuilder takes three arrays of strings, and a limit and returns a SPARQL query
 	GETBuilder([]string, []string, []string, int) string
 	POSTBuilder([]Triple) string
@@ -38,6 +38,6 @@ func (s *service) ExecuteGET(query string) ([]Triple, error) {
 	return s.r.ExecuteGET(query)
 }
 
-func (s *service) ExeutePOST(query string, tripleArray []Triple) error {
-	return s.r.ExeutePOST(query, tripleArray)
+func (s *service) ExeutePOST(query string) error {
+	return s.r.ExeutePOST(query)
 }
