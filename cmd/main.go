@@ -29,12 +29,9 @@ import (
 
 func main() {
 	appRepository := config.Repository{}
-	config.LoadEnv("..", &appRepository)
+	config.Load("..", &appRepository)
 	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoServerURL)
-	service := graph.NewService(virtuosoRepository)
+	service := graph.NewService(virtuosoRepository, appRepository.GraphURI)
 	router := rest.NewRouter(service)
 	router.Run(":8080")
 }
-//this is a test
-
-

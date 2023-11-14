@@ -3,39 +3,37 @@ package graph
 type DataType int
 
 const (
-	URI = iota
+	URI DataType = iota
 	Literal
 )
 
+type Attribute string
+
 const (
-	Subject   = "s"
-	Predicate = "p"
-	Object    = "o"
+	Subject   Attribute = "s"
+	Predicate Attribute = "p"
+	Object    Attribute = "o"
 )
 
-type Node struct {
-	Value    string   `json:"value"`
-	Label    *string  `json:"label"`
-	Children *[]*Node `json:"child"`
-	DataType DataType `json:"datatype"`
-}
-
+// Triple requires the json tags to match with the queries that are used to retrieve it.
 // swagger:model
 type Triple struct {
-	Subject   BindingAttribute `json:"s"`
-	Predicate BindingAttribute `json:"p"`
-	Object    BindingAttribute `json:"o"`
-}
-
-// VirtuosoResponse requires the json tags to match with the queries that are used to retrieve it.
-type VirtuosoResponse struct {
-	Results struct {
-		Bindings []Triple
-	}
+	// S is the subject
+	S BindingAttribute `json:"s"`
+	// P is the predicate
+	P BindingAttribute `json:"p"`
+	// O is the object
+	O BindingAttribute `json:"o"`
 }
 
 // swagger:model
 type BindingAttribute struct {
 	Type  string
 	Value string
+}
+
+type VirtuosoResponse struct {
+	Results struct {
+		Bindings []Triple
+	}
 }

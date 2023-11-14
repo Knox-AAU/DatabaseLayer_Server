@@ -11,19 +11,24 @@ import (
 
 type Repository struct {
 	VirtuosoServerURL string
+	GraphURI          string
+	TestGraphURI      string
 }
 
-func LoadEnv(rootPath string, config *Repository) {
+func Load(rootPath string, config *Repository) {
 	if err := godotenv.Load(filepath.Join(strings.TrimSpace(rootPath), ".env")); err != nil {
 		log.Println("ignoring error when loading env file:", err)
 	}
-	config.VirtuosoServerURL = mustGetEnv("VIRTUOSO_SERVER_URL")
+
+	config.VirtuosoServerURL = mustGetENV("VIRTUOSO_SERVER_URL")
+	config.GraphURI = mustGetENV("VIRTUOSO_GRAPH_URI")
+	config.TestGraphURI = mustGetENV("VIRTUOSO_TEST_GRAPH_URI")
 }
 
-func mustGetEnv(k string) string {
-	v := os.Getenv(k)
-	if v == "" {
-		log.Fatalf("environment variable %s not set", k)
+func mustGetENV(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("Missing ENV key: %s\n", key)
 	}
-	return v
+	return value
 }

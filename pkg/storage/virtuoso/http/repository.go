@@ -3,11 +3,12 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
-	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage/sparql"
 )
 
 type virtuosoRepository struct {
@@ -20,9 +21,14 @@ func NewVirtuosoRepository(url string) graph.Repository {
 	}
 }
 
-func (r virtuosoRepository) FindAll() (*[]graph.Triple, error) {
-	res, err := http.Get(r.VirtuosoServerURL + "?" + formatQuery(sparql.GetAll))
+func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
+	res, err := http.Get(r.VirtuosoServerURL + "?" + encode(query))
 	if err != nil {
+		for _, c := range r.VirtuosoServerURL {
+			fmt.Print(string(c) + ", ")
+		}
+		fmt.Print("\n")
+		log.Println("error when executing query:", err)
 		return nil, err
 	}
 
@@ -34,27 +40,11 @@ func (r virtuosoRepository) FindAll() (*[]graph.Triple, error) {
 		return nil, err
 	}
 
-	return &virtuosoRes.Results.Bindings, nil
+	return virtuosoRes.Results.Bindings, nil
 }
 
-func (r virtuosoRepository) Find(serviceQuery string) (*[]graph.Triple, error) {
-	return &[]graph.Triple{}, nil
-}
-
-func (r virtuosoRepository) Delete(serviceQuery string) error {
-	return nil
-}
-
-func (r virtuosoRepository) Update(node *graph.Triple) error {
-	return nil
-}
-
-func (r virtuosoRepository) Create(node *graph.Triple) error {
-	return nil
-}
-
-// formatQuery adds necessary parameters for virtuoso
-func formatQuery(query string) string {
+// encode adds necessary parameters for virtuoso
+func encode(query string) string {
 	params := url.Values{}
 	params.Add("query", query)
 	params.Add("format", "json")

@@ -1,54 +1,29 @@
 package graph
 
-// Service provides operations
 type Service interface {
-	FindAll() (*[]Triple, error)
-	Find(string) (*[]Triple, error)
-	Delete(string) error
-	Update(*Triple) error
-	Create(*Triple) error
+	Execute(string) ([]Triple, error)
+	GetURI() string
 }
 
-// Repository sends queries and turns response from virtuoso server into a Node with eventual children
 type Repository interface {
-	FindAll() (*[]Triple, error)
-	Find(string) (*[]Triple, error)
-	Delete(string) error
-	Update(*Triple) error
-	Create(*Triple) error
+	Execute(string) ([]Triple, error)
 }
 
 // service implements Service interface
 type service struct {
-	r Repository
+	r   Repository
+	uri string
 }
 
 // NewService creates service instance with given dependencies
-func NewService(r Repository) Service {
-	return &service{r}
+func NewService(r Repository, uri string) Service {
+	return &service{r: r, uri: uri}
 }
 
-func (s *service) FindAll() (*[]Triple, error) {
-	return s.r.FindAll()
+func (s *service) Execute(query string) ([]Triple, error) {
+	return s.r.Execute(query)
 }
 
-func (s *service) Find(query string) (*[]Triple, error) {
-	return s.r.Find(query)
-}
-
-func (s *service) Delete(query string) error {
-	return s.r.Delete(query)
-}
-
-func (s *service) Update(n *Triple) error {
-	return s.r.Update(n)
-}
-
-func (s *service) Create(n *Triple) error {
-	return s.r.Create(n)
-}
-
-// getNodeFromURI will recieve bindingattribute and toggle URI and literal, if URI will fetch nodes, if literal returns node without fetch
-func getNodeFromURI(switcher BindingAttribute) *Node {
-	return nil
+func (s *service) GetURI() string {
+	return s.uri
 }
