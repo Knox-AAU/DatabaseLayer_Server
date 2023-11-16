@@ -3,8 +3,11 @@ package rest_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
@@ -33,23 +36,19 @@ func TestAcceptanceGET(t *testing.T) {
 }
 
 func TestAcceptancePOST(t *testing.T) {
+	var body []graph.Triple
 	router := setupApp()
-	body := []graph.Triple{
-		{
-			S: graph.BindingAttribute{
-				Type:  "",
-				Value: "http://testing/Barack_Obama",
-			},
-			P: graph.BindingAttribute{
-				Type:  "",
-				Value: "http://dbpedia.org/ontology/spouse",
-			},
-			O: graph.BindingAttribute{
-				Type:  "",
-				Value: "http://testing/Michelle_Obama",
-			},
-		},
+
+	file, err := os.Open("test.json")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
 	}
+
+	err = json.NewDecoder(file).Decode(&body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	expectedQuery := "INSERT DATA { GRAPH <http://testing/> {<http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.}}"
 	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
 
