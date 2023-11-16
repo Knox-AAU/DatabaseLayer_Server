@@ -50,7 +50,7 @@ func TestAcceptancePOST(t *testing.T) {
 			},
 		},
 	}
-	expectedQuery := "INSERT DATA { <http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.}"
+	expectedQuery := "INSERT DATA { GRAPH <http://testing/> {<http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.}}"
 	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
 
 	require.Equal(t, http.StatusOK, statusCode)
