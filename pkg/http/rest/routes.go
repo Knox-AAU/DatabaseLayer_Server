@@ -5,12 +5,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var Get = "/get"
+const (
+	GET  = "/get"
+	POST = "/post"
+)
 
 func NewRouter(s graph.Service) *gin.Engine {
 	router := gin.Default()
-	router.GET(Get, func(c *gin.Context) {
+	router.GET(GET, func(c *gin.Context) {
 		getHandler(c, s)
 	})
+
+	router.POST(POST, func(c *gin.Context) {
+		postHandler(c, s)
+	})
+
 	return router
 }

@@ -9,10 +9,16 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// GraphURI is used for type safety
+type GraphURI string
+
+// VirtuosoURL is used for type safety
+type VirtuosoURL string
+
 type Repository struct {
-	VirtuosoServerURL string
-	GraphURI          string
-	TestGraphURI      string
+	VirtuosoURL  VirtuosoURL
+	GraphURI     GraphURI
+	TestGraphURI GraphURI
 }
 
 func Load(rootPath string, config *Repository) {
@@ -20,9 +26,9 @@ func Load(rootPath string, config *Repository) {
 		log.Println("ignoring error when loading env file:", err)
 	}
 
-	config.VirtuosoServerURL = mustGetENV("VIRTUOSO_SERVER_URL")
-	config.GraphURI = mustGetENV("VIRTUOSO_GRAPH_URI")
-	config.TestGraphURI = mustGetENV("VIRTUOSO_TEST_GRAPH_URI")
+	config.VirtuosoURL = VirtuosoURL(mustGetENV("VIRTUOSO_SERVER_URL"))
+	config.GraphURI = GraphURI(mustGetENV("VIRTUOSO_GRAPH_URI"))
+	config.TestGraphURI = GraphURI(mustGetENV("VIRTUOSO_TEST_GRAPH_URI"))
 }
 
 func mustGetENV(key string) string {

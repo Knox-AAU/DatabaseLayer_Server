@@ -8,21 +8,32 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 )
 
 type virtuosoRepository struct {
-	VirtuosoServerURL string
+	VirtuosoServerURL config.VirtuosoURL
+	GraphURI          config.GraphURI
 }
 
-func NewVirtuosoRepository(url string) graph.Repository {
+// encode adds necessary parameters for virtuoso
+func encode(query string) string {
+	params := url.Values{}
+	params.Add("query", query)
+	params.Add("format", "json")
+	return params.Encode()
+}
+
+func NewVirtuosoRepository(url config.VirtuosoURL, graphURI config.GraphURI) graph.Repository {
 	return &virtuosoRepository{
 		VirtuosoServerURL: url,
+		GraphURI:          graphURI,
 	}
 }
 
-func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
-	res, err := http.Get(r.VirtuosoServerURL + "?" + encode(query))
+func (r virtuosoRepository) ExecuteGET(query string) ([]graph.Triple, error) {
+	res, err := http.Get(string(r.VirtuosoServerURL) + "?" + encode(query))
 	if err != nil {
 		for _, c := range r.VirtuosoServerURL {
 			fmt.Print(string(c) + ", ")
@@ -43,10 +54,18 @@ func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
 	return virtuosoRes.Results.Bindings, nil
 }
 
-// encode adds necessary parameters for virtuoso
-func encode(query string) string {
-	params := url.Values{}
-	params.Add("query", query)
-	params.Add("format", "json")
-	return params.Encode()
+func (r virtuosoRepository) ExeutePOST(query string) error {
+	insertQuery := []byte(query)
+	res, err := http.Post(string(r.VirtuosoServerURL), "application/sparql-update", bytes.NewBuffer(insertQuery))
+	if err != nil {
+		for _, c := range r.VirtuosoServerURL {
+			fmt.Print(string(c) + ", ")
+		}
+		fmt.Print("\n")
+		log.Println("error when executing query: ", err)
+		return err
+	}
+	fmt.Println(res)
+
+	return nil
 }
