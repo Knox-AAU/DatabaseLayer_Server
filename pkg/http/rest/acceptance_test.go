@@ -59,7 +59,7 @@ func TestAcceptancePOST(t *testing.T) {
 func setupApp() *gin.Engine {
 	appRepository := config.Repository{}
 	config.Load("../../../", &appRepository)
-	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.TestGraphURI)
+	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.TestGraphURI, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
 	router := rest.NewRouter(service)
 
