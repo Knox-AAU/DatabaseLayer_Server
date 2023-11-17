@@ -1,0 +1,31 @@
+[
+    {
+        "s": {
+            "type": "",
+            "value": "http://testing/Barack_Obama"
+        },
+        "p": {
+            "type": "",
+            "value": "http://dbpedia.org/ontology/spouse"
+        },
+        "o": {
+            "type": "",
+            "value": "http://testing/Michelle_Obama"
+        }
+    },
+    {
+        "s": {
+            "type": "",
+            "value": "http://testing/Eiffel_Tower"
+        },
+        "p": {
+            "type": "",
+            "value": "http://dbpedia.org/ontology/locatedInArea"
+        },
+        "o": {
+            "type": "",
+            "value": "http://testing/Paris"
+        }
+    }
+
+]
