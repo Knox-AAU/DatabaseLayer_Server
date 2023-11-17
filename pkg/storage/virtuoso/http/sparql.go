@@ -15,11 +15,11 @@ const (
 
 // POSTBuilder creates a query for inserting triples into the graph
 func (r virtuosoRepository) POSTBuilder(triples []graph.Triple) string {
-	query := "INSERT DATA { " //GRAPH <" + string(r.GraphURI) + "> {" //forstår ikke hvorfor det er nødvendigt
+	query := "INSERT DATA { GRAPH <" + string(r.GraphURI) + "> {" //don't understand pls help
 	for _, triple := range triples {
 		query += "<" + triple.S.Value + "> <" + triple.P.Value + "> <" + triple.O.Value + ">."
 	}
-	query += "}"
+	query += "}}"
 	return query
 }
 

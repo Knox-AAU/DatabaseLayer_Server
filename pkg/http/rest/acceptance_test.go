@@ -3,8 +3,11 @@ package rest_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
@@ -15,7 +18,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type method string
+type (
+	method           string
+	internalResponse struct {
+		rest.Result
+		ErrMessage string `json:"error"`
+	}
+)
 
 const (
 	GET  method = "GET"
@@ -33,24 +42,20 @@ func TestAcceptanceGET(t *testing.T) {
 }
 
 func TestAcceptancePOST(t *testing.T) {
+	var body []graph.Triple
 	router := setupApp()
-	body := []graph.Triple{
-		{
-			S: graph.BindingAttribute{
-				Type:  "",
-				Value: "http://testing/Barack_Obama",
-			},
-			P: graph.BindingAttribute{
-				Type:  "",
-				Value: "http://dbpedia.org/ontology/spouse",
-			},
-			O: graph.BindingAttribute{
-				Type:  "",
-				Value: "http://testing/Michelle_Obama",
-			},
-		},
+
+	file, err := os.Open("test.json")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
 	}
-	expectedQuery := "INSERT DATA { <http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.}"
+
+	err = json.NewDecoder(file).Decode(&body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	expectedQuery := "INSERT DATA { GRAPH <http://testing/> {<http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.<http://testing/Eiffel_Tower> <http://dbpedia.org/ontology/locatedInArea> <http://testing/Paris>.}}"
 	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
 
 	require.Equal(t, http.StatusOK, statusCode)
@@ -60,7 +65,7 @@ func TestAcceptancePOST(t *testing.T) {
 func setupApp() *gin.Engine {
 	appRepository := config.Repository{}
 	config.Load("../../../", &appRepository)
-	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.TestGraphURI)
+	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.TestGraphURI, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
 	router := rest.NewRouter(service)
 
@@ -98,10 +103,14 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 	response := rr.Result()
 
 	defer response.Body.Close()
-	actualResponse := rest.Result{}
+	actualResponse := internalResponse{}
 
 	err = json.NewDecoder(response.Body).Decode(&actualResponse)
 	require.NoError(t, err)
+	require.Empty(t, actualResponse.ErrMessage)
 
-	return actualResponse, response.StatusCode
+	return rest.Result{
+		Query:   actualResponse.Query,
+		Triples: actualResponse.Triples,
+	}, response.StatusCode
 }

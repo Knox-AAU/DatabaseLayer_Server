@@ -16,9 +16,11 @@ type GraphURI string
 type VirtuosoURL string
 
 type Repository struct {
-	VirtuosoURL  VirtuosoURL
-	GraphURI     GraphURI
-	TestGraphURI GraphURI
+	VirtuosoURL      VirtuosoURL
+	GraphURI         GraphURI
+	TestGraphURI     GraphURI
+	VirtuosoUsername string
+	VirtuosoPassword string
 }
 
 func Load(rootPath string, config *Repository) {
@@ -29,6 +31,8 @@ func Load(rootPath string, config *Repository) {
 	config.VirtuosoURL = VirtuosoURL(mustGetENV("VIRTUOSO_SERVER_URL"))
 	config.GraphURI = GraphURI(mustGetENV("VIRTUOSO_GRAPH_URI"))
 	config.TestGraphURI = GraphURI(mustGetENV("VIRTUOSO_TEST_GRAPH_URI"))
+	config.VirtuosoUsername = mustGetENV("VIRTUOSO_USERNAME")
+	config.VirtuosoPassword = mustGetENV("VIRTUOSO_PASSWORD")
 }
 
 func mustGetENV(key string) string {
