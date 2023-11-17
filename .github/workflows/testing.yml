@@ -14,7 +14,7 @@ env:
   VIRTUOSO_TEST_GRAPH_URI: http://testing/
   VIRTUOSO_USERNAME: ${{ secrets.VIRTUOSO_USERNAME }}
   VIRTUOSO_PASSWORD: ${{ secrets.VIRTUOSO_PASSWORD }}
-
+  
 jobs:
   test:
     runs-on: ubuntu-latest
