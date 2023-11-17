@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -74,8 +75,8 @@ func getHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	query := graph.Builder(edges, subjects, objects, depth, s.GetURI())
-	triples, err := s.Execute(query)
+	query := s.GETBuilder(edges, subjects, objects, depth)
+	triples, err := s.ExecuteGET(query)
 	if err != nil {
 		msg := fmt.Sprintf("error executing query: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
@@ -85,6 +86,28 @@ func getHandler(c *gin.Context, s graph.Service) {
 	c.JSON(http.StatusOK, Result{
 		Triples: triples,
 		Query:   query,
+	})
+}
+
+func postHandler(c *gin.Context, s graph.Service) {
+	var tripleArray []graph.Triple
+
+	decoder := json.NewDecoder(c.Request.Body)
+	if err := decoder.Decode(&tripleArray); err != nil {
+		msg := fmt.Sprintf("error parsing json body: %s", err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+		return
+	}
+
+	if err := s.ExeutePOST(s.POSTBuilder(tripleArray)); err != nil {
+		msg := fmt.Sprintf("error executing query: %s", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		return
+	}
+
+	c.JSON(http.StatusOK, Result{
+		Triples: nil,
+		Query:   s.POSTBuilder(tripleArray),
 	})
 }
 
