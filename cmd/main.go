@@ -30,7 +30,7 @@ import (
 func main() {
 	appRepository := config.Repository{}
 	config.Load("..", &appRepository)
-	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.GraphURI)
+	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.GraphURI, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
 	router := rest.NewRouter(service)
 	router.Run(":8080")

@@ -15,6 +15,8 @@ import (
 type virtuosoRepository struct {
 	VirtuosoServerURL config.VirtuosoURL
 	GraphURI          config.GraphURI
+	Username          string
+	Password          string
 }
 
 // encode adds necessary parameters for virtuoso
@@ -25,22 +27,41 @@ func encode(query string) string {
 	return params.Encode()
 }
 
-func NewVirtuosoRepository(url config.VirtuosoURL, graphURI config.GraphURI) graph.Repository {
+func NewVirtuosoRepository(url config.VirtuosoURL, graphURI config.GraphURI, username, password string) graph.Repository {
 	return &virtuosoRepository{
 		VirtuosoServerURL: url,
 		GraphURI:          graphURI,
+		Username:          username,
+		Password:          password,
 	}
 }
 
-func (r virtuosoRepository) ExecuteGET(query string) ([]graph.Triple, error) {
-	res, err := http.Get(string(r.VirtuosoServerURL) + "?" + encode(query))
+func (r virtuosoRepository) send(request *http.Request) (*http.Response, error) {
+	request.SetBasicAuth(r.Username, r.Password)
+	log.Println(r.Username)
+	log.Println(r.Password)
+	log.Println(request.Header)
+	res, err := http.DefaultClient.Do(request)
 	if err != nil {
-		for _, c := range r.VirtuosoServerURL {
-			fmt.Print(string(c) + ", ")
-		}
-		fmt.Print("\n")
-		log.Println("error when executing query:", err)
-		return nil, err
+		return nil, fmt.Errorf("executing request: %w", err)
+	}
+
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("unauthorized request")
+	}
+
+	return res, nil
+}
+
+func (r virtuosoRepository) ExecuteGET(query string) ([]graph.Triple, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", r.VirtuosoServerURL, encode(query)), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %w", err)
+	}
+
+	res, err := r.send(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing query: %w", err)
 	}
 
 	buf := new(bytes.Buffer)
@@ -55,17 +76,15 @@ func (r virtuosoRepository) ExecuteGET(query string) ([]graph.Triple, error) {
 }
 
 func (r virtuosoRepository) ExeutePOST(query string) error {
-	insertQuery := []byte(query)
-	res, err := http.Post(string(r.VirtuosoServerURL), "application/sparql-update", bytes.NewBuffer(insertQuery))
+	req, err := http.NewRequest("POST", string(r.VirtuosoServerURL), bytes.NewBuffer([]byte(query)))
 	if err != nil {
-		for _, c := range r.VirtuosoServerURL {
-			fmt.Print(string(c) + ", ")
-		}
-		fmt.Print("\n")
-		log.Println("error when executing query: ", err)
-		return err
+		return fmt.Errorf("creating request: %w", err)
 	}
-	fmt.Println(res)
+
+	req.Header.Set("Content-Type", "application/sparql-update")
+	if _, err := r.send(req); err != nil {
+		return fmt.Errorf("executing query: %w", err)
+	}
 
 	return nil
 }
