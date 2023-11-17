@@ -1,38 +1,101 @@
 package rest_test
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest"
 	virtuoso "github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage/virtuoso/http"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
 
-func TestAcceptance(t *testing.T) {
+type (
+	method           string
+	internalResponse struct {
+		rest.Result
+		ErrMessage string `json:"error"`
+	}
+)
 
-	input := "/get?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
-	actualResponse, statusCode := doRequest(input, t)
+const (
+	GET  method = "GET"
+	POST method = "POST"
+)
+
+func TestAcceptanceGET(t *testing.T) {
+	router := setupApp()
+	input := rest.GET + "?p=x&p=y&s=z&s=j&o=h&o=k"
+	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing/> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
+	actualResponse, statusCode := doRequest(router, input, t, method("GET"), nil)
 
 	require.Equal(t, http.StatusOK, statusCode)
 	require.Equal(t, expectedQuery, actualResponse.Query)
 }
 
-func doRequest(path string, t *testing.T) (rest.Result, int) {
+func TestAcceptancePOST(t *testing.T) {
+	var body []graph.Triple
+	router := setupApp()
+
+	file, err := os.Open("test.json")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
+
+	err = json.NewDecoder(file).Decode(&body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	expectedQuery := "INSERT DATA { GRAPH <http://testing/> {<http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.<http://testing/Eiffel_Tower> <http://dbpedia.org/ontology/locatedInArea> <http://testing/Paris>.}}"
+	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
+
+	require.Equal(t, http.StatusOK, statusCode)
+	require.Equal(t, expectedQuery, actualResponse.Query)
+}
+
+func setupApp() *gin.Engine {
 	appRepository := config.Repository{}
 	config.Load("../../../", &appRepository)
-	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoServerURL)
-	service := graph.NewService(virtuosoRepository, appRepository.TestGraphURI)
+	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.TestGraphURI, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
+	service := graph.NewService(virtuosoRepository)
 	router := rest.NewRouter(service)
 
-	const GET = "GET"
+	return router
+}
 
-	req, err := http.NewRequest(GET, path, nil)
+func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body []graph.Triple) (rest.Result, int) {
+	var req *http.Request
+	var err error
+	switch {
+	case _method != method("GET") && body != nil:
+		{
+			jsonPayload, err := json.Marshal(body)
+			require.NoError(t, err)
+
+			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
+		}
+	case _method != method("POST") && body != nil:
+		{
+			jsonPayload, err := json.Marshal(body)
+			require.NoError(t, err)
+
+			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
+		}
+	default:
+		{
+			req, err = http.NewRequest(string(_method), path, nil)
+		}
+	}
+
 	require.NoError(t, err)
 
 	rr := httptest.NewRecorder()
@@ -40,10 +103,14 @@ func doRequest(path string, t *testing.T) (rest.Result, int) {
 	response := rr.Result()
 
 	defer response.Body.Close()
-	actualResponse := rest.Result{}
+	actualResponse := internalResponse{}
 
 	err = json.NewDecoder(response.Body).Decode(&actualResponse)
 	require.NoError(t, err)
+	require.Empty(t, actualResponse.ErrMessage)
 
-	return actualResponse, response.StatusCode
+	return rest.Result{
+		Query:   actualResponse.Query,
+		Triples: actualResponse.Triples,
+	}, response.StatusCode
 }
