@@ -190,9 +190,9 @@ To deploy the docker image of the repository to the server a GitHub Action needs
 
 ## Authors
 
-Casper Bruun Christensen <caschr21@student.aau.dk>
-Emily Treadwell Pedersen <emiped21@student.aau.dk>
-Malthe Reipurth <mreipu21@student.aau.dk>
-Matthias Munch Jakobsen <mattja21@student.aau.dk>
-Moritz Marcus Hönscheidt <mhoens21@student.aau.dk>
-Rasmus Louie Jensen <rjen20@student.aau.dk>
+- Casper Bruun Christensen <caschr21@student.aau.dk>
+- Emily Treadwell Pedersen <emiped21@student.aau.dk>
+- Malthe Reipurth <mreipu21@student.aau.dk>
+- Matthias Munch Jakobsen <mattja21@student.aau.dk>
+- Moritz Marcus Hönscheidt <mhoens21@student.aau.dk>
+- Rasmus Louie Jensen <rjen20@student.aau.dk>
