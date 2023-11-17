@@ -18,7 +18,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type method string
+type (
+	method           string
+	internalResponse struct {
+		rest.Result
+		ErrMessage string `json:"error"`
+	}
+)
 
 const (
 	GET  method = "GET"
@@ -97,10 +103,14 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 	response := rr.Result()
 
 	defer response.Body.Close()
-	actualResponse := rest.Result{}
+	actualResponse := internalResponse{}
 
 	err = json.NewDecoder(response.Body).Decode(&actualResponse)
 	require.NoError(t, err)
+	require.Empty(t, actualResponse.ErrMessage)
 
-	return actualResponse, response.StatusCode
+	return rest.Result{
+		Query:   actualResponse.Query,
+		Triples: actualResponse.Triples,
+	}, response.StatusCode
 }
