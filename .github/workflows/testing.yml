@@ -12,7 +12,9 @@ env:
   VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
   VIRTUOSO_GRAPH_URI: http://localhost:8890/DAV
   VIRTUOSO_TEST_GRAPH_URI: http://testing
-  
+  VIRTUOSO_USERNAME: ${{ secrets.VIRTUOSO_USERNAME }}
+  VIRTUOSO_PASSWORD: ${{ secrets.VIRTUOSO_PASSWORD }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
