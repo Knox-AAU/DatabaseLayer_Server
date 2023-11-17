@@ -33,5 +33,5 @@ func main() {
 	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.GraphURI, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
 	router := rest.NewRouter(service)
-	router.Run(":8080")
+	router.Run(":8000")
 }
