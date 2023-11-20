@@ -46,7 +46,7 @@ The servers are:
 - `knox-front01.srv.aau.dk` (front-end proxy)  
 - `knox-proxy01.srv.aau.dk` (API proxy)  
 
-You can access the server from the command line with `ssh <STUDENT_MAIL>@<SERVER_NAME> -L <PORT>:localhost:<PORT>`.
+You can access the server from the command line with `ssh <STUDENT_MAIL>@<SERVER_NAME> -L <your_port>:localhost:<host_port>`.
 
 ## Accessing our server and API
 
@@ -58,13 +58,11 @@ The code for this project (including tests) accesses Virtuoso on port 8890, whic
 
 ### Access our database layer API
 
-Your port is 8000 and the API on the server is on 8081.
+`ssh <STUDENT_MAIL>@knox-kb01.srv.aau.dk -L <your_port>:localhost:80`
 
-`ssh <STUDENT_MAIL>@knox-kb01.srv.aau.dk -L 8000:localhost:80`
+#### Deploy new version manually
 
-#### Deploy new version
-
-After connecting via `ssh`, run the following command:
+Deployment is normally handled by watchtower on push to main. However, in case of the need of manual deployment, run
 
 ```bash
 docker run -p 0.0.0.0:80:8000 --add-host=host.docker.internal:host-gateway -e VIRTUOSO_SERVER_URL=http://host.docker.internal:8890/sparql/ -e VIRTUOSO_GRAPH_URI=http://knox_ontology/ -e VIRTUOSO_ONTOLOGY_GRAPH_URI=http://knox_ontology/ -e VIRTUOSO_TEST_GRAPH_URI=http://testing/ -e VIRTUOSO_USERNAME=dba -e VIRTUOSO_PASSWORD=*** -d ghcr.io/knox-aau/databaselayer_server:main
