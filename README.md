@@ -60,7 +60,17 @@ The code for this project (including tests) accesses Virtuoso on port 8890, whic
 
 Your port is 8000 and the API on the server is on 8081.
 
-`ssh <STUDENT_MAIL>@knox-kb01.srv.aau.dk -L 8000:localhost:8081`
+`ssh <STUDENT_MAIL>@knox-kb01.srv.aau.dk -L 8000:localhost:80`
+
+#### Deploy new version
+
+After connecting via `ssh`, run the following command:
+
+```bash
+docker run -p 0.0.0.0:80:8000 --add-host=host.docker.internal:host-gateway -e VIRTUOSO_SERVER_URL=http://host.docker.internal:8890/sparql/ -e VIRTUOSO_GRAPH_URI=http://knox_ontology/ -e VIRTUOSO_ONTOLOGY_GRAPH_URI=http://knox_ontology/ -e VIRTUOSO_TEST_GRAPH_URI=http://testing/ -e VIRTUOSO_USERNAME=dba -e VIRTUOSO_PASSWORD=*** -d ghcr.io/knox-aau/databaselayer_server:main
+```
+
+Note that the ports map to the ports used in the ssh command. 
 
 ## Endpoint Documentation
 
