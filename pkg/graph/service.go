@@ -4,7 +4,7 @@ type Service interface {
 	ExecuteGET(string) ([]Triple, error)
 	ExeutePOST(string) error
 	GETBuilder([]string, []string, []string, int) string
-	POSTBuilder([]Triple) string
+	POSTBuilder([][3]string) string
 }
 
 type Repository interface {
@@ -13,7 +13,7 @@ type Repository interface {
 	ExeutePOST(string) error
 	// GETBuilder takes three arrays of strings, and a limit and returns a SPARQL query
 	GETBuilder([]string, []string, []string, int) string
-	POSTBuilder([]Triple) string
+	POSTBuilder([][3]string) string
 }
 
 // service implements Service interface
@@ -30,8 +30,8 @@ func (s *service) GETBuilder(edges, subjects, objects []string, depth int) strin
 	return s.r.GETBuilder(edges, subjects, objects, depth)
 }
 
-func (s *service) POSTBuilder(tripleArray []Triple) string {
-	return s.r.POSTBuilder(tripleArray)
+func (s *service) POSTBuilder(triples [][3]string) string {
+	return s.r.POSTBuilder(triples)
 }
 
 func (s *service) ExecuteGET(query string) ([]Triple, error) {

@@ -42,7 +42,7 @@ func TestAcceptanceGET(t *testing.T) {
 }
 
 func TestAcceptancePOST(t *testing.T) {
-	var body []graph.Triple
+	var body [][3]string
 	router := setupApp()
 
 	file, err := os.Open("test.json")
@@ -72,27 +72,27 @@ func setupApp() *gin.Engine {
 	return router
 }
 
-func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body []graph.Triple) (rest.Result, int) {
+func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body [][3]string) (rest.Result, int) {
 	var req *http.Request
 	var err error
 	switch {
-	case _method != method("GET") && body != nil:
+	case _method == method("GET"):
 		{
-			jsonPayload, err := json.Marshal(body)
-			require.NoError(t, err)
-
-			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
+			req, err = http.NewRequest(string(_method), path, nil)
 		}
-	case _method != method("POST") && body != nil:
+	case _method == method("POST") && body != nil:
 		{
 			jsonPayload, err := json.Marshal(body)
 			require.NoError(t, err)
 
 			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
+			if err != nil {
+				t.Fatalf("Error in POST request, error: %s", err)
+			}
 		}
 	default:
 		{
-			req, err = http.NewRequest(string(_method), path, nil)
+			t.Fatalf("Invalid method: %s", _method)
 		}
 	}
 
