@@ -27,14 +27,16 @@ type (
 )
 
 const (
-	GET  method = "GET"
-	POST method = "POST"
+	GET             method = "GET"
+	POST            method = "POST"
+	testingGraphURI        = "http://testing"
 )
 
 func TestAcceptanceGET(t *testing.T) {
 	router := setupApp()
 	parameters := "?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing/> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
+	expectedQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}",
+		testingGraphURI)
 	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
 
 	require.Equal(t, http.StatusOK, statusCode)
@@ -46,7 +48,7 @@ func TestAcceptanceGET(t *testing.T) {
 }
 
 func TestAcceptancePOST(t *testing.T) {
-	var body []graph.Triple
+	var body [][3]string
 	router := setupApp()
 
 	file, err := os.Open("test.json")
@@ -59,7 +61,8 @@ func TestAcceptancePOST(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	expectedQuery := "INSERT DATA { GRAPH <http://testing/> {<http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.<http://testing/Eiffel_Tower> <http://dbpedia.org/ontology/locatedInArea> <http://testing/Paris>.}}"
+	expectedQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {<http://test1> <http://test1> <http://test1>.<http://test2> <http://test2> <http://test2>.}}",
+		testingGraphURI)
 	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), body)
 
 	require.Equal(t, http.StatusOK, gotKnowledgebaseStatus)
@@ -83,27 +86,27 @@ func setupApp() *gin.Engine {
 	return router
 }
 
-func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body []graph.Triple) (rest.Result, int) {
+func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body [][3]string) (rest.Result, int) {
 	var req *http.Request
 	var err error
 	switch {
-	case _method != method("GET") && body != nil:
+	case _method == method("GET"):
 		{
-			jsonPayload, err := json.Marshal(body)
-			require.NoError(t, err)
-
-			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
+			req, err = http.NewRequest(string(_method), path, nil)
 		}
-	case _method != method("POST") && body != nil:
+	case _method == method("POST") && body != nil:
 		{
 			jsonPayload, err := json.Marshal(body)
 			require.NoError(t, err)
 
 			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
+			if err != nil {
+				t.Fatalf("Error in POST request, error: %s", err)
+			}
 		}
 	default:
 		{
-			req, err = http.NewRequest(string(_method), path, nil)
+			t.Fatalf("Invalid method: %s", _method)
 		}
 	}
 
