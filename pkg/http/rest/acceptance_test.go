@@ -33,12 +33,16 @@ const (
 
 func TestAcceptanceGET(t *testing.T) {
 	router := setupApp()
-	input := rest.GET + "?p=x&p=y&s=z&s=j&o=h&o=k"
+	parameters := "?p=x&p=y&s=z&s=j&o=h&o=k"
 	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing/> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
-	actualResponse, statusCode := doRequest(router, input, t, method("GET"), nil)
+	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
 
 	require.Equal(t, http.StatusOK, statusCode)
-	require.Equal(t, expectedQuery, actualResponse.Query)
+	require.Equal(t, expectedQuery, gotKnowledgebaseResponse.Query)
+
+	gotOntologyResponse, statusCode := doRequest(router, string(rest.Ontology)+parameters, t, method("GET"), nil)
+	require.Equal(t, http.StatusOK, statusCode)
+	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
 }
 
 func TestAcceptancePOST(t *testing.T) {
@@ -56,18 +60,25 @@ func TestAcceptancePOST(t *testing.T) {
 	}
 
 	expectedQuery := "INSERT DATA { GRAPH <http://testing/> {<http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.<http://testing/Eiffel_Tower> <http://dbpedia.org/ontology/locatedInArea> <http://testing/Paris>.}}"
-	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
+	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), body)
 
-	require.Equal(t, http.StatusOK, statusCode)
-	require.Equal(t, expectedQuery, actualResponse.Query)
+	require.Equal(t, http.StatusOK, gotKnowledgebaseStatus)
+	require.Equal(t, expectedQuery, gotKnowledgeBaseResponse.Query)
+
+	gotOntologyResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), body)
+	require.Equal(t, http.StatusOK, gotOntologyStatus)
+	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
 }
 
 func setupApp() *gin.Engine {
 	appRepository := config.Repository{}
 	config.Load("../../../", &appRepository)
-	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.TestGraphURI, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
+	testingOntologyURI := appRepository.TestGraphURI
+	testingKnowledgebaseURI := appRepository.TestGraphURI
+
+	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
-	router := rest.NewRouter(service)
+	router := rest.NewRouter(service, graph.OntologyGraphURI(testingOntologyURI), graph.KnowledgeBaseGraphURI(testingKnowledgebaseURI))
 
 	return router
 }

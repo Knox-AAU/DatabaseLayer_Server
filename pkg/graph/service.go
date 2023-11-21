@@ -3,8 +3,8 @@ package graph
 type Service interface {
 	ExecuteGET(string) ([]Triple, error)
 	ExeutePOST(string) error
-	GETBuilder([]string, []string, []string, int) string
-	POSTBuilder([]Triple) string
+	GETBuilder([]string, []string, []string, int, TargetGraph) string
+	POSTBuilder([]Triple, TargetGraph) string
 }
 
 type Repository interface {
@@ -12,8 +12,8 @@ type Repository interface {
 	ExecuteGET(string) ([]Triple, error)
 	ExeutePOST(string) error
 	// GETBuilder takes three arrays of strings, and a limit and returns a SPARQL query
-	GETBuilder([]string, []string, []string, int) string
-	POSTBuilder([]Triple) string
+	GETBuilder([]string, []string, []string, int, TargetGraph) string
+	POSTBuilder([]Triple, TargetGraph) string
 }
 
 // service implements Service interface
@@ -26,12 +26,12 @@ func NewService(r Repository) Service {
 	return &service{r: r}
 }
 
-func (s *service) GETBuilder(edges, subjects, objects []string, depth int) string {
-	return s.r.GETBuilder(edges, subjects, objects, depth)
+func (s *service) GETBuilder(edges, subjects, objects []string, depth int, targetGraph TargetGraph) string {
+	return s.r.GETBuilder(edges, subjects, objects, depth, targetGraph)
 }
 
-func (s *service) POSTBuilder(tripleArray []Triple) string {
-	return s.r.POSTBuilder(tripleArray)
+func (s *service) POSTBuilder(tripleArray []Triple, targetGraph TargetGraph) string {
+	return s.r.POSTBuilder(tripleArray, targetGraph)
 }
 
 func (s *service) ExecuteGET(query string) ([]Triple, error) {

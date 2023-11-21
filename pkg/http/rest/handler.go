@@ -16,12 +16,10 @@ type Result struct {
 	Query   string         `json:"query"`
 }
 
-func getHandler(c *gin.Context, s graph.Service) {
-	// swagger:operation GET /get get get
+func getHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) {
+	// swagger:operation GET /knowledge-base get get
 	//
 	// This endpoint allows for querying with filters.
-	//
-	// Example query: {{url}}/get?p=x&p=y&s=x&s=y&o=x&o=y
 	//
 	// To query the whole graph, leave all parameters empty.
 	//
@@ -75,7 +73,7 @@ func getHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	query := s.GETBuilder(edges, subjects, objects, depth)
+	query := s.GETBuilder(edges, subjects, objects, depth, targetGraph)
 	triples, err := s.ExecuteGET(query)
 	if err != nil {
 		msg := fmt.Sprintf("error executing query: %s", err.Error())
@@ -89,7 +87,7 @@ func getHandler(c *gin.Context, s graph.Service) {
 	})
 }
 
-func postHandler(c *gin.Context, s graph.Service) {
+func postHandler(c *gin.Context, s graph.Service, knowledgeBase graph.TargetGraph) {
 	var tripleArray []graph.Triple
 
 	decoder := json.NewDecoder(c.Request.Body)
@@ -99,7 +97,8 @@ func postHandler(c *gin.Context, s graph.Service) {
 		return
 	}
 
-	if err := s.ExeutePOST(s.POSTBuilder(tripleArray)); err != nil {
+	query := s.POSTBuilder(tripleArray, knowledgeBase)
+	if err := s.ExeutePOST(query); err != nil {
 		msg := fmt.Sprintf("error executing query: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		return
@@ -107,7 +106,7 @@ func postHandler(c *gin.Context, s graph.Service) {
 
 	c.JSON(http.StatusOK, Result{
 		Triples: nil,
-		Query:   s.POSTBuilder(tripleArray),
+		Query:   query,
 	})
 }
 

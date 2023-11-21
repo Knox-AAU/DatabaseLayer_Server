@@ -1,15 +1,17 @@
 package graph
 
-type DataType int
+type (
+	DataType                  int
+	Attribute                 string
+	TargetGraph               string
+	OntologyGraphURI          TargetGraph
+	KnowledgeBaseGraphURI     TargetGraph
+	TestKnowledgeBaseGraphURI TargetGraph
+)
 
 const (
 	URI DataType = iota
 	Literal
-)
-
-type Attribute string
-
-const (
 	Subject   Attribute = "s"
 	Predicate Attribute = "p"
 	Object    Attribute = "o"

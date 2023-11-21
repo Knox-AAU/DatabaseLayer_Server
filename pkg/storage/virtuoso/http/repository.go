@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 
@@ -14,7 +13,6 @@ import (
 
 type virtuosoRepository struct {
 	VirtuosoServerURL config.VirtuosoURL
-	GraphURI          config.GraphURI
 	Username          string
 	Password          string
 }
@@ -27,10 +25,9 @@ func encode(query string) string {
 	return params.Encode()
 }
 
-func NewVirtuosoRepository(url config.VirtuosoURL, graphURI config.GraphURI, username, password string) graph.Repository {
+func NewVirtuosoRepository(url config.VirtuosoURL, username, password string) graph.Repository {
 	return &virtuosoRepository{
 		VirtuosoServerURL: url,
-		GraphURI:          graphURI,
 		Username:          username,
 		Password:          password,
 	}
@@ -38,9 +35,6 @@ func NewVirtuosoRepository(url config.VirtuosoURL, graphURI config.GraphURI, use
 
 func (r virtuosoRepository) send(request *http.Request) (*http.Response, error) {
 	request.SetBasicAuth(r.Username, r.Password)
-	log.Println(r.Username)
-	log.Println(r.Password)
-	log.Println(request.Header)
 	res, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("executing request: %w", err)
