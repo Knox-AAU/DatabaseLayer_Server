@@ -1,6 +1,6 @@
 // Package main Database Layer Server API.
 //
-// This repository implements a server to facilitate communication on the KNOX pipeline.
+// This package implements a REST HTTP API to facilitate communication with the KNOX database.
 //
 // Terms Of Service:
 //

@@ -48,9 +48,8 @@ func TestAcceptanceGET(t *testing.T) {
 }
 
 func TestAcceptancePOST(t *testing.T) {
-	var body [][3]string
+	var body graph.PostBody
 	router := setupApp()
-
 	file, err := os.Open("test.json")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -61,14 +60,14 @@ func TestAcceptancePOST(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	expectedQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {<http://test1> <http://test1> <http://test1>.<http://test2> <http://test2> <http://test2>.}}",
+	expectedQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {\n<http://test1> <http://test1> <http://test1> .\n<http://test2> <http://test2> <http://test2> .\n}}",
 		testingGraphURI)
-	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), body)
+	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), &body)
 
 	require.Equal(t, http.StatusOK, gotKnowledgebaseStatus)
 	require.Equal(t, expectedQuery, gotKnowledgeBaseResponse.Query)
 
-	gotOntologyResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), body)
+	gotOntologyResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), &body)
 	require.Equal(t, http.StatusOK, gotOntologyStatus)
 	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
 }
@@ -86,7 +85,7 @@ func setupApp() *gin.Engine {
 	return router
 }
 
-func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body [][3]string) (rest.Result, int) {
+func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body *graph.PostBody) (rest.Result, int) {
 	var req *http.Request
 	var err error
 	switch {
@@ -96,7 +95,7 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 		}
 	case _method == method("POST") && body != nil:
 		{
-			jsonPayload, err := json.Marshal(body)
+			jsonPayload, err := json.Marshal(*body)
 			require.NoError(t, err)
 
 			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))

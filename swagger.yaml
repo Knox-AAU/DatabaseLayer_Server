@@ -10,19 +10,7 @@ definitions:
                 type: string
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
-    Result:
-        properties:
-            query:
-                type: string
-                x-go-name: Query
-            triples:
-                items:
-                    $ref: '#/definitions/Triple'
-                type: array
-                x-go-name: Triples
-        type: object
-        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest
-    Triple:
+    GetTriple:
         properties:
             o:
                 $ref: '#/definitions/BindingAttribute'
@@ -30,21 +18,42 @@ definitions:
                 $ref: '#/definitions/BindingAttribute'
             s:
                 $ref: '#/definitions/BindingAttribute'
-        title: Triple requires the json tags to match with the queries that are used to retrieve it.
+        title: GetTriple requires the json tags to match with the queries that are used to retrieve it.
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
+    PostBody:
+        properties:
+            triples:
+                description: Triples is an array of triples, where each triple's first element is the subject, second is the predicate and third is the object.
+                items:
+                    items:
+                        type: string
+                    type: array
+                type: array
+                x-go-name: Triples
+        type: object
+        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
+    Result:
+        properties:
+            query:
+                type: string
+                x-go-name: Query
+            triples:
+                items:
+                    $ref: '#/definitions/GetTriple'
+                type: array
+                x-go-name: Triples
+        type: object
+        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest
 host: localhost:8080
 info:
-    description: This repository implements a server to facilitate communication on the KNOX pipeline.
+    description: This package implements a REST HTTP API to facilitate communication with the KNOX database.
     title: Database Layer Server API.
     version: 0.0.1
 paths:
-    /get:
+    /knowledge-base:
         get:
-            description: |-
-                Example query: {{url}}/get?p=x&p=y&s=x&s=y&o=x&o=y
-
-                To query the whole graph, leave all parameters empty.
+            description: To query the whole graph, leave all parameters empty.
             operationId: get
             parameters:
                 - description: Subjects
@@ -75,8 +84,80 @@ paths:
                             $ref: '#/definitions/Result'
                         type: array
             summary: This endpoint allows for querying with filters.
-            tags:
-                - get
+        post:
+            description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
+            operationId: post
+            parameters:
+                - description: Triples to insert
+                  in: body
+                  name: triples
+                  required: true
+                  schema:
+                    $ref: '#/definitions/PostBody/Tripsles'
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: response with produced insert query
+                    schema:
+                        items:
+                            $ref: '#/definitions/Result'
+                        type: array
+            summary: This endpoint allows for insertion or updating of triples.
+    /ontology:
+        get:
+            description: To query the whole graph, leave all parameters empty.
+            operationId: get
+            parameters:
+                - description: Subjects
+                  in: query
+                  items:
+                    type: string
+                  name: s
+                  type: array
+                - description: Objects
+                  in: query
+                  items:
+                    type: string
+                  name: o
+                  type: array
+                - description: Predicates
+                  in: query
+                  items:
+                    type: string
+                  name: p
+                  type: array
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: filtered triples response
+                    schema:
+                        items:
+                            $ref: '#/definitions/Result'
+                        type: array
+            summary: This endpoint allows for querying with filters.
+    /ontologz:
+        post:
+            description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
+            operationId: post
+            parameters:
+                - description: Triples to insert
+                  in: body
+                  name: triples
+                  required: true
+                  schema:
+                    $ref: '#/definitions/PostBody/Triples'
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: response with produced insert query
+                    schema:
+                        items:
+                            $ref: '#/definitions/Result'
+                        type: array
+            summary: This endpoint allows for insertion or updating of triples.
 produces:
     - application/json
 schemes:

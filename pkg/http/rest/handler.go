@@ -12,12 +12,51 @@ import (
 
 // swagger:model
 type Result struct {
-	Triples []graph.Triple `json:"triples"`
-	Query   string         `json:"query"`
+	Triples []graph.GetTriple `json:"triples"`
+	Query   string            `json:"query"`
 }
 
 func getHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) {
-	// swagger:operation GET /knowledge-base get get
+	// swagger:operation GET /knowledge-base get
+	//
+	// This endpoint allows for querying with filters.
+	//
+	// To query the whole graph, leave all parameters empty.
+	//
+	// ---
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: s
+	//   in: query
+	//   description: Subjects
+	//   required: false
+	//   type: array
+	//   items:
+	//     type: string
+	// - name: o
+	//   in: query
+	//   description: Objects
+	//   required: false
+	//   type: array
+	//   items:
+	//     type: string
+	// - name: p
+	//   in: query
+	//   description: Predicates
+	//   required: false
+	//   type: array
+	//   items:
+	//     type: string
+	// responses:
+	//   '200':
+	//     description: filtered triples response
+	//     schema:
+	//       type: array
+	//       items:
+	//         "$ref": "#/definitions/Result"
+
+	// swagger:operation GET /ontology get
 	//
 	// This endpoint allows for querying with filters.
 	//
@@ -88,7 +127,55 @@ func getHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) 
 }
 
 func postHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) {
-	var triples [][3]string
+	// swagger:operation POST /knowledge-base post
+	//
+	// This endpoint allows for insertion or updating of triples.
+	//
+	// If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
+	//
+	// ---
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: triples
+	//   in: body
+	//   description: Triples to insert
+	//   required: true
+	//   schema:
+	//     "$ref": "#/definitions/PostBody/Triples"
+	// responses:
+	//   '200':
+	//     description: response with produced insert query
+	//     schema:
+	//       type: array
+	//       items:
+	//         "$ref": "#/definitions/Result"
+
+	// swagger:operation POST /ontology post
+	//
+	// This endpoint allows for insertion or updating of triples.
+	//
+	// If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
+	//
+	// ---
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: triples
+	//   in: body
+	//   description: Triples to insert
+	//   required: true
+	//   schema:
+	//     "$ref": "#/definitions/PostBody/Triples"
+	// responses:
+	//   '200':
+	//     description: response with produced insert query
+	//     schema:
+	//       type: array
+	//       items:
+	//         "$ref": "#/definitions/Result"
+
+	var triples graph.PostBody
 
 	decoder := json.NewDecoder(c.Request.Body)
 	if err := decoder.Decode(&triples); err != nil {

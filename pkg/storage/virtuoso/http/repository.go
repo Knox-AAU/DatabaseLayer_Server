@@ -47,7 +47,7 @@ func (r virtuosoRepository) send(request *http.Request) (*http.Response, error) 
 	return res, nil
 }
 
-func (r virtuosoRepository) ExecuteGET(query string) ([]graph.Triple, error) {
+func (r virtuosoRepository) ExecuteGET(query string) ([]graph.GetTriple, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", r.VirtuosoServerURL, encode(query)), nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)

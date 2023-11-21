@@ -17,15 +17,21 @@ const (
 	Object    Attribute = "o"
 )
 
-// Triple requires the json tags to match with the queries that are used to retrieve it.
+// GetTriple requires the json tags to match with the queries that are used to retrieve it.
 // swagger:model
-type Triple struct {
+type GetTriple struct {
 	// S is the subject
 	S BindingAttribute `json:"s"`
 	// P is the predicate
 	P BindingAttribute `json:"p"`
 	// O is the object
 	O BindingAttribute `json:"o"`
+}
+
+//swagger:model
+type PostBody struct {
+	// Triples is an array of triples, where each triple's first element is the subject, second is the predicate and third is the object.
+	Triples [][3]string `json:"triples"`
 }
 
 // swagger:model
@@ -36,6 +42,6 @@ type BindingAttribute struct {
 
 type VirtuosoResponse struct {
 	Results struct {
-		Bindings []Triple
+		Bindings []GetTriple
 	}
 }
