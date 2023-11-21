@@ -72,7 +72,7 @@ Note that the ports map to the ports used in the ssh command.
 
 ## Endpoint Documentation
 
-### /get
+### /knowledge-base
 
 #### GET
 ##### Summary:
@@ -80,8 +80,6 @@ Note that the ports map to the ports used in the ssh command.
 This endpoint allows for querying with filters.
 
 ##### Description:
-
-Example query: {{url}}/get?p=x&p=y&s=x&s=y&o=x&o=y
 
 To query the whole graph, leave all parameters empty.
 
@@ -99,6 +97,75 @@ To query the whole graph, leave all parameters empty.
 | ---- | ----------- | ------ |
 | 200 | filtered triples response | [ [Result](#result) ] |
 
+#### POST
+##### Summary:
+
+This endpoint allows for insertion or updating of triples.
+
+##### Description:
+
+If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| triples | body | Triples to insert | Yes | [Tripsles](#tripsles) |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | response with produced insert query | [ [Result](#result) ] |
+
+### /ontology
+
+#### GET
+##### Summary:
+
+This endpoint allows for querying with filters.
+
+##### Description:
+
+To query the whole graph, leave all parameters empty.
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| s | query | Subjects | No | [ string ] |
+| o | query | Objects | No | [ string ] |
+| p | query | Predicates | No | [ string ] |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | filtered triples response | [ [Result](#result) ] |
+
+### /ontologz
+
+#### POST
+##### Summary:
+
+This endpoint allows for insertion or updating of triples.
+
+##### Description:
+
+If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| triples | body | Triples to insert | Yes | [Triples](#triples) |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | response with produced insert query | [ [Result](#result) ] |
+
 ### Models
 
 
@@ -109,20 +176,26 @@ To query the whole graph, leave all parameters empty.
 | Type | string |  | No |
 | Value | string |  | No |
 
-#### Result
-
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| query | string |  | No |
-| triples | [ [Triple](#triple) ] |  | No |
-
-#### Triple
+#### GetTriple
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | o | [BindingAttribute](#bindingattribute) |  | No |
 | p | [BindingAttribute](#bindingattribute) |  | No |
 | s | [BindingAttribute](#bindingattribute) |  | No |
+
+#### PostBody
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| triples | [ [ string ] ] | Triples is an array of triples, where each triple's first element is the subject, second is the predicate and third is the object. | No |
+
+#### Result
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| query | string |  | No |
+| triples | [ [GetTriple](#gettriple) ] |  | No |
 
 ## Database
 
