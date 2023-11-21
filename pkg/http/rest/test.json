@@ -1,12 +1,6 @@
-[
-    [
-        "http://testing/Barack_Obama",
-        "http://dbpedia.org/ontology/spouse",
-        "http://testing/Michelle_Obama"
-    ],
-    [
-        "http://testing/Eiffel_Tower",
-        "http://dbpedia.org/ontology/locatedInArea",
-        "http://testing/Paris"
+{
+    "triples": [
+      ["http://test1", "http://test1", "http://test1"],
+      ["http://test2", "http://test2", "http://test2"]
     ]
-]
+}

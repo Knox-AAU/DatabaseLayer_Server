@@ -1,6 +1,6 @@
 // Package main Database Layer Server API.
 //
-// This repository implements a server to facilitate communication on the KNOX pipeline.
+// This package implements a REST HTTP API to facilitate communication with the KNOX database.
 //
 // Terms Of Service:
 //
@@ -30,8 +30,8 @@ import (
 func main() {
 	appRepository := config.Repository{}
 	config.Load("..", &appRepository)
-	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.GraphURI, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
+	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
-	router := rest.NewRouter(service)
-	router.Run(":8000")
+	router := rest.NewRouter(service, graph.OntologyGraphURI(appRepository.OntologyGraphURI), graph.KnowledgeBaseGraphURI(appRepository.GraphURI))
+	router.Run(":8080")
 }

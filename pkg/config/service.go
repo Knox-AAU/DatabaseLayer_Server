@@ -9,14 +9,16 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// GraphURI is used for type safety
-type GraphURI string
-
-// VirtuosoURL is used for type safety
-type VirtuosoURL string
+type (
+	// GraphURI is used for type safety
+	GraphURI string
+	// VirtuosoURL is used for type safety
+	VirtuosoURL string
+)
 
 type Repository struct {
 	VirtuosoURL      VirtuosoURL
+	OntologyGraphURI GraphURI
 	GraphURI         GraphURI
 	TestGraphURI     GraphURI
 	VirtuosoUsername string
@@ -33,6 +35,7 @@ func Load(rootPath string, config *Repository) {
 	config.TestGraphURI = GraphURI(mustGetENV("VIRTUOSO_TEST_GRAPH_URI"))
 	config.VirtuosoUsername = mustGetENV("VIRTUOSO_USERNAME")
 	config.VirtuosoPassword = mustGetENV("VIRTUOSO_PASSWORD")
+	config.OntologyGraphURI = GraphURI(mustGetENV("VIRTUOSO_ONTOLOGY_GRAPH_URI"))
 }
 
 func mustGetENV(key string) string {
@@ -40,5 +43,6 @@ func mustGetENV(key string) string {
 	if value == "" {
 		log.Fatalf("Missing ENV key: %s\n", key)
 	}
+
 	return value
 }

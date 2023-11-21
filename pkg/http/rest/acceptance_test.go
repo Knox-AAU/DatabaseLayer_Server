@@ -27,24 +27,29 @@ type (
 )
 
 const (
-	GET  method = "GET"
-	POST method = "POST"
+	GET             method = "GET"
+	POST            method = "POST"
+	testingGraphURI        = "http://testing"
 )
 
 func TestAcceptanceGET(t *testing.T) {
 	router := setupApp()
-	input := rest.GET + "?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedQuery := "SELECT ?s ?p ?o WHERE { GRAPH <http://testing/> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}"
-	actualResponse, statusCode := doRequest(router, input, t, method("GET"), nil)
+	parameters := "?p=x&p=y&s=z&s=j&o=h&o=k"
+	expectedQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}",
+		testingGraphURI)
+	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
 
 	require.Equal(t, http.StatusOK, statusCode)
-	require.Equal(t, expectedQuery, actualResponse.Query)
+	require.Equal(t, expectedQuery, gotKnowledgebaseResponse.Query)
+
+	gotOntologyResponse, statusCode := doRequest(router, string(rest.Ontology)+parameters, t, method("GET"), nil)
+	require.Equal(t, http.StatusOK, statusCode)
+	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
 }
 
 func TestAcceptancePOST(t *testing.T) {
-	var body [][3]string
+	var body graph.PostBody
 	router := setupApp()
-
 	file, err := os.Open("test.json")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -55,24 +60,32 @@ func TestAcceptancePOST(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	expectedQuery := "INSERT DATA { GRAPH <http://testing/> {<http://testing/Barack_Obama> <http://dbpedia.org/ontology/spouse> <http://testing/Michelle_Obama>.<http://testing/Eiffel_Tower> <http://dbpedia.org/ontology/locatedInArea> <http://testing/Paris>.}}"
-	actualResponse, statusCode := doRequest(router, rest.POST, t, method("POST"), body)
+	expectedQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {\n<http://test1> <http://test1> <http://test1> .\n<http://test2> <http://test2> <http://test2> .\n}}",
+		testingGraphURI)
+	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), &body)
 
-	require.Equal(t, http.StatusOK, statusCode)
-	require.Equal(t, expectedQuery, actualResponse.Query)
+	require.Equal(t, http.StatusOK, gotKnowledgebaseStatus)
+	require.Equal(t, expectedQuery, gotKnowledgeBaseResponse.Query)
+
+	gotOntologyResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), &body)
+	require.Equal(t, http.StatusOK, gotOntologyStatus)
+	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
 }
 
 func setupApp() *gin.Engine {
 	appRepository := config.Repository{}
 	config.Load("../../../", &appRepository)
-	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.TestGraphURI, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
+	testingOntologyURI := appRepository.TestGraphURI
+	testingKnowledgebaseURI := appRepository.TestGraphURI
+
+	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
-	router := rest.NewRouter(service)
+	router := rest.NewRouter(service, graph.OntologyGraphURI(testingOntologyURI), graph.KnowledgeBaseGraphURI(testingKnowledgebaseURI))
 
 	return router
 }
 
-func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body [][3]string) (rest.Result, int) {
+func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body *graph.PostBody) (rest.Result, int) {
 	var req *http.Request
 	var err error
 	switch {
@@ -82,7 +95,7 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 		}
 	case _method == method("POST") && body != nil:
 		{
-			jsonPayload, err := json.Marshal(body)
+			jsonPayload, err := json.Marshal(*body)
 			require.NoError(t, err)
 
 			req, err = http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
