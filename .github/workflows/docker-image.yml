@@ -1,7 +1,5 @@
 name: Docker deploy image
 
-# hello world
-
 on:
   schedule:
     - cron: "15 23 * * *"
@@ -47,12 +45,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            VIRTUOSO_USERNAME=${{ secrets.VIRTUOSO_USERNAME }}
-            VIRTUOSO_PASSWORD=${{ secrets.VIRTUOSO_PASSWORD }}
-            VIRTUOSO_SERVER_URL=${{ secrets.VIRTUOSO_SERVER_URL }}
-            VIRTUOSO_GRAPH_URI=${{ secrets.VIRTUOSO_GRAPH_URI }}
-            VIRTUOSO_TEST_GRAPH_URI=${{ secrets.VIRTUOSO_TEST_GRAPH_URI }}
-            VIRTUOSO_ONTOLOGY_GRAPH_URI=${{ secrets.VIRTUOSO_ONTOLOGY_GRAPH_URI }}
-
-            
