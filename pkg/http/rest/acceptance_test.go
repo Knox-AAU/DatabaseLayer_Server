@@ -42,7 +42,7 @@ func TestAcceptanceGET(t *testing.T) {
 }
 
 func TestAcceptancePOST(t *testing.T) {
-	var body []graph.Triple
+	var body [][3]string
 	router := setupApp()
 
 	file, err := os.Open("test.json")
@@ -72,7 +72,7 @@ func setupApp() *gin.Engine {
 	return router
 }
 
-func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body []graph.Triple) (rest.Result, int) {
+func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body [][3]string) (rest.Result, int) {
 	var req *http.Request
 	var err error
 	switch {

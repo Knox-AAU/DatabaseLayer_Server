@@ -90,16 +90,16 @@ func getHandler(c *gin.Context, s graph.Service) {
 }
 
 func postHandler(c *gin.Context, s graph.Service) {
-	var tripleArray []graph.Triple
+	var triples [][3]string
 
 	decoder := json.NewDecoder(c.Request.Body)
-	if err := decoder.Decode(&tripleArray); err != nil {
+	if err := decoder.Decode(&triples); err != nil {
 		msg := fmt.Sprintf("error parsing json body: %s", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 
-	if err := s.ExeutePOST(s.POSTBuilder(tripleArray)); err != nil {
+	if err := s.ExeutePOST(s.POSTBuilder(triples)); err != nil {
 		msg := fmt.Sprintf("error executing query: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		return
@@ -107,7 +107,7 @@ func postHandler(c *gin.Context, s graph.Service) {
 
 	c.JSON(http.StatusOK, Result{
 		Triples: nil,
-		Query:   s.POSTBuilder(tripleArray),
+		Query:   s.POSTBuilder(triples),
 	})
 }
 
