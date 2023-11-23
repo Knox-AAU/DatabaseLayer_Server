@@ -18,15 +18,8 @@ The main branch of the repository is protected by branch protection rules, which
 
 ### Generate new documentation
 
-To generate new documentation, run:
-
 ```bash
 swagger generate spec -m -o ./swagger.yaml
-```
-
-To convert the spec file to markdown, run:
-
-```bash
 openapi-markdown -i ./swagger.yaml
 ```
 
@@ -95,7 +88,7 @@ To query the whole graph, leave all parameters empty.
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | filtered triples response | [ [Result](#result) ] |
+| 200 | filtered triples response | [Result](#result) |
 
 #### POST
 ##### Summary:
@@ -110,13 +103,13 @@ If a new predicate is sent with an existing subject, will the existing subject b
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| triples | body | Triples to insert | Yes | [Tripsles](#tripsles) |
+| triples | body | Triples to insert | Yes | [PostBody](#postbody) |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | response with produced insert query | [ [Result](#result) ] |
+| 200 | response with produced insert query | [Result](#result) |
 
 ### /ontology
 
@@ -141,9 +134,7 @@ To query the whole graph, leave all parameters empty.
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | filtered triples response | [ [Result](#result) ] |
-
-### /ontologz
+| 200 | filtered triples response | [Result](#result) |
 
 #### POST
 ##### Summary:
@@ -158,13 +149,13 @@ If a new predicate is sent with an existing subject, will the existing subject b
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| triples | body | Triples to insert | Yes | [Triples](#triples) |
+| triples | body | Triples to insert | Yes | [PostBody](#postbody) |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | response with produced insert query | [ [Result](#result) ] |
+| 200 | response with produced insert query | [Result](#result) |
 
 ### Models
 
@@ -188,7 +179,7 @@ If a new predicate is sent with an existing subject, will the existing subject b
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| triples | [ [ string ] ] | Triples is an array of triples, where each triple's first element is the subject, second is the predicate and third is the object. | No |
+| triples | [ [ string ] ] | Triples is an array of triples. Each triple's first element is the subject, second is the predicate and third is the object. Only accepts exactly 3 elements per triple. | Yes |
 
 #### Result
 

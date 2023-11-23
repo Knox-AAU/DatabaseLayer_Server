@@ -24,13 +24,18 @@ definitions:
     PostBody:
         properties:
             triples:
-                description: Triples is an array of triples, where each triple's first element is the subject, second is the predicate and third is the object.
+                description: |-
+                    Triples is an array of triples.
+                    Each triple's first element is the subject, second is the predicate and third is the object.
+                    Only accepts exactly 3 elements per triple.
                 items:
                     items:
                         type: string
                     type: array
                 type: array
                 x-go-name: Triples
+        required:
+            - triples
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
     Result:
@@ -54,7 +59,7 @@ paths:
     /knowledge-base:
         get:
             description: To query the whole graph, leave all parameters empty.
-            operationId: get
+            operationId: getKnowledgeBase
             parameters:
                 - description: Subjects
                   in: query
@@ -80,34 +85,30 @@ paths:
                 "200":
                     description: filtered triples response
                     schema:
-                        items:
-                            $ref: '#/definitions/Result'
-                        type: array
+                        $ref: '#/definitions/Result'
             summary: This endpoint allows for querying with filters.
         post:
             description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
-            operationId: post
+            operationId: UpsertKnowledgeBase
             parameters:
                 - description: Triples to insert
                   in: body
                   name: triples
                   required: true
                   schema:
-                    $ref: '#/definitions/PostBody/Tripsles'
+                    $ref: '#/definitions/PostBody'
             produces:
                 - application/json
             responses:
                 "200":
                     description: response with produced insert query
                     schema:
-                        items:
-                            $ref: '#/definitions/Result'
-                        type: array
+                        $ref: '#/definitions/Result'
             summary: This endpoint allows for insertion or updating of triples.
     /ontology:
         get:
             description: To query the whole graph, leave all parameters empty.
-            operationId: get
+            operationId: getOntology
             parameters:
                 - description: Subjects
                   in: query
@@ -133,30 +134,25 @@ paths:
                 "200":
                     description: filtered triples response
                     schema:
-                        items:
-                            $ref: '#/definitions/Result'
-                        type: array
+                        $ref: '#/definitions/Result'
             summary: This endpoint allows for querying with filters.
-    /ontologz:
         post:
             description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
-            operationId: post
+            operationId: UpsertOntology
             parameters:
                 - description: Triples to insert
                   in: body
                   name: triples
                   required: true
                   schema:
-                    $ref: '#/definitions/PostBody/Triples'
+                    $ref: '#/definitions/PostBody'
             produces:
                 - application/json
             responses:
                 "200":
                     description: response with produced insert query
                     schema:
-                        items:
-                            $ref: '#/definitions/Result'
-                        type: array
+                        $ref: '#/definitions/Result'
             summary: This endpoint allows for insertion or updating of triples.
 produces:
     - application/json
