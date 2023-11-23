@@ -18,7 +18,8 @@
 // swagger:meta
 package main
 
-//go:generate swagger generate spec -m -o ./swagger.yaml
+//go:generate swagger generate spec -m -o ../swagger.yaml
+//go:generate openapi-markdown -i ../swagger.yaml
 
 import (
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
