@@ -30,8 +30,11 @@ type GetTriple struct {
 
 //swagger:model
 type PostBody struct {
-	// Triples is an array of triples, where each triple's first element is the subject, second is the predicate and third is the object.
-	Triples [][3]string `json:"triples"`
+	// Triples is an array of triples.
+	// Each triple's first element is the subject, second is the predicate and third is the object.
+	// Only accepts exactly 3 elements per triple.
+	// required: true
+	Triples [][]string `json:"triples"`
 }
 
 // swagger:model

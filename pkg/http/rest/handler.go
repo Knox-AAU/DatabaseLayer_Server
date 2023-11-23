@@ -17,7 +17,7 @@ type Result struct {
 }
 
 func getHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) {
-	// swagger:operation GET /knowledge-base get
+	// swagger:operation GET /knowledge-base getKnowledgeBase
 	//
 	// This endpoint allows for querying with filters.
 	//
@@ -52,11 +52,9 @@ func getHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) 
 	//   '200':
 	//     description: filtered triples response
 	//     schema:
-	//       type: array
-	//       items:
-	//         "$ref": "#/definitions/Result"
+	//       "$ref": "#/definitions/Result"
 
-	// swagger:operation GET /ontology get
+	// swagger:operation GET /ontology getOntology
 	//
 	// This endpoint allows for querying with filters.
 	//
@@ -91,10 +89,7 @@ func getHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) 
 	//   '200':
 	//     description: filtered triples response
 	//     schema:
-	//       type: array
-	//       items:
-	//         "$ref": "#/definitions/Result"
-
+	//       "$ref": "#/definitions/Result"
 	edges := c.QueryArray(string(graph.Predicate))
 	subjects := c.QueryArray(string(graph.Subject))
 	objects := c.QueryArray(string(graph.Object))
@@ -127,7 +122,7 @@ func getHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) 
 }
 
 func postHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph) {
-	// swagger:operation POST /knowledge-base post
+	// swagger:operation POST /knowledge-base UpsertKnowledgeBase
 	//
 	// This endpoint allows for insertion or updating of triples.
 	//
@@ -142,16 +137,14 @@ func postHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph)
 	//   description: Triples to insert
 	//   required: true
 	//   schema:
-	//     "$ref": "#/definitions/PostBody/Triples"
+	//     "$ref": "#/definitions/PostBody"
 	// responses:
 	//   '200':
 	//     description: response with produced insert query
 	//     schema:
-	//       type: array
-	//       items:
-	//         "$ref": "#/definitions/Result"
+	//       "$ref": "#/definitions/Result"
 
-	// swagger:operation POST /ontology post
+	// swagger:operation POST /ontology UpsertOntology
 	//
 	// This endpoint allows for insertion or updating of triples.
 	//
@@ -166,20 +159,24 @@ func postHandler(c *gin.Context, s graph.Service, targetGraph graph.TargetGraph)
 	//   description: Triples to insert
 	//   required: true
 	//   schema:
-	//     "$ref": "#/definitions/PostBody/Triples"
+	//     "$ref": "#/definitions/PostBody"
 	// responses:
 	//   '200':
 	//     description: response with produced insert query
 	//     schema:
-	//       type: array
-	//       items:
-	//         "$ref": "#/definitions/Result"
+	//       "$ref": "#/definitions/Result"
 
 	var triples graph.PostBody
 
 	decoder := json.NewDecoder(c.Request.Body)
 	if err := decoder.Decode(&triples); err != nil {
 		msg := fmt.Sprintf("error parsing json body: %s", err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+		return
+	}
+
+	if err := triples.Validate(); err != nil {
+		msg := fmt.Sprintf("error validating json body: %s", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
