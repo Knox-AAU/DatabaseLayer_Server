@@ -1,28 +1,22 @@
-name: Workflow
+name: Test and deploy
 
 on:
   push:
     branches: '*'
 
-env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
-  VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
-  VIRTUOSO_GRAPH_URI: http://testing
-  VIRTUOSO_TEST_GRAPH_URI: http://testing
-  VIRTUOSO_USERNAME: ${{ secrets.VIRTUOSO_USERNAME }}
-  VIRTUOSO_PASSWORD: ${{ secrets.VIRTUOSO_PASSWORD }}
-  VIRTUOSO_ONTOLOGY_GRAPH_URI: http://testing
-
 jobs:
   deploy:
     needs: test
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    env:
+      # Use docker.io for Docker Hub if empty
+      REGISTRY: ghcr.io
+      # github.repository as <account>/<repo>
+      IMAGE_NAME: ${{ github.repository }}
 
     steps:
       - uses: actions/checkout@v3
@@ -52,6 +46,13 @@ jobs:
         image: openlink/virtuoso-opensource-7:latest
         ports:
           - 8890:8890
+    env:    
+      VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
+      VIRTUOSO_GRAPH_URI: http://testing
+      VIRTUOSO_TEST_GRAPH_URI: http://testing
+      VIRTUOSO_ONTOLOGY_GRAPH_URI: http://testing
+      VIRTUOSO_USERNAME: ${{ secrets.VIRTUOSO_USERNAME }}
+      VIRTUOSO_PASSWORD: ${{ secrets.VIRTUOSO_PASSWORD }}
 
     steps:
       - name: Set permissions for virtuoso db directory
