@@ -85,11 +85,15 @@ func TestGetPostChain(t *testing.T) {
 	var expectedPostBody []graph.GetTriple
 	TestAcceptancePOST(t)
 	TestAcceptanceGET(t)
-	for i, triple := range Testplaceholder.postBody.Triples {
 
-		expectedPostBody[i].S.Value = triple[0]
-		expectedPostBody[i].P.Value = triple[1]
-		expectedPostBody[i].O.Value = triple[2]
+	for i := 0; i < len(Testplaceholder.postBody.Triples); i++ {
+		if len(expectedPostBody) == 0 {
+			return
+		} else {
+			expectedPostBody[i].P.Value = Testplaceholder.postBody.Triples[i][1]
+			expectedPostBody[i].O.Value = Testplaceholder.postBody.Triples[i][2]
+			expectedPostBody[i].S.Value = Testplaceholder.postBody.Triples[i][0]
+		}
 	}
 
 	actualGetBody := Testplaceholder.getBody.Triples
