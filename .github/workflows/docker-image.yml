@@ -3,7 +3,7 @@ name: Docker deploy image
 on:
   workflow_run:
     workflows: ["Test"]
-    branches: ['main', 'Deploy-tests-in-workflow']
+    branches: '*'
     types:
       - completed
   workflow_dispatch:
