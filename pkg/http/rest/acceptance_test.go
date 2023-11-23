@@ -15,6 +15,7 @@ import (
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest"
 	virtuoso "github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage/virtuoso/http"
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -45,6 +46,7 @@ func TestAcceptanceGET(t *testing.T) {
 	gotOntologyResponse, statusCode := doRequest(router, string(rest.Ontology)+parameters, t, method("GET"), nil)
 	require.Equal(t, http.StatusOK, statusCode)
 	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
+	assert.Equal(t, 1, 2)
 }
 
 func TestAcceptancePOST(t *testing.T) {
