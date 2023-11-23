@@ -5,10 +5,6 @@ The code can be found in this [repository](https://github.com/Knox-AAU/DatabaseL
 
 The Access API documentation can temporarily be found [here](/DataLayer/access-api)
 
-## Branch protection rules
-
-The main branch of the repository is protected by branch protection rules, which ensures the code can build and is tested before it can be merged to the main branch. The branch protection rule requires pull requests before merging and status checks to pass before merging. The status checks are defined in the `test.yml` file from the Test workflow in GitHub Actions.
-
 ## Generate new documentation based on code
 
 ### Prerequisites
