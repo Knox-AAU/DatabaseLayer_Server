@@ -1,7 +1,7 @@
 package graph
 
 type (
-	Attribute                 string
+	Parameter                 string
 	TargetGraph               string
 	OntologyGraphURI          TargetGraph
 	KnowledgeBaseGraphURI     TargetGraph
@@ -10,11 +10,12 @@ type (
 
 const (
 	// Subject matches with the json tag of the subject in the get query
-	Subject Attribute = "s"
+	Subject Parameter = "s"
 	// Predicate matches with the json tag of the predicate in the get query
-	Predicate Attribute = "p"
+	Predicate Parameter = "p"
 	// Object matches with the json tag of the object in the get query
-	Object Attribute = "o"
+	Object Parameter = "o"
+	Graph  Parameter = "g"
 )
 
 // GetTriple requires the json tags to match with the queries that are used to retrieve it.

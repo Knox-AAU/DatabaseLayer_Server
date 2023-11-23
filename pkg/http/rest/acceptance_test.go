@@ -27,29 +27,30 @@ type (
 )
 
 const (
-	GET             method = "GET"
-	POST            method = "POST"
-	testingGraphURI        = "http://testing"
+	GET  method = "GET"
+	POST method = "POST"
 )
 
 func TestAcceptanceGET(t *testing.T) {
-	router := setupApp()
-	parameters := "?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}",
-		testingGraphURI)
-	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
+	router, testGraph := setupApp()
+	route := fmt.Sprintf("%s?%s=%s&%s=x&%s=y&%s=z&%s=j&%s=h&%s=k",
+		string(rest.Triples), graph.Graph, testGraph, graph.Subject, graph.Predicate, graph.Object, graph.Subject, graph.Object, graph.Predicate)
+	expectedQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'x') || contains(str(?s), 'j')) && (contains(str(?o), 'z') || contains(str(?o), 'h')) && (contains(str(?p), 'y') || contains(str(?p), 'k'))) . }}",
+		testGraph)
+	gotKnowledgebaseResponse, statusCode := doRequest(router, route, t, method("GET"), nil)
 
 	require.Equal(t, http.StatusOK, statusCode)
 	require.Equal(t, expectedQuery, gotKnowledgebaseResponse.Query)
 
-	gotOntologyResponse, statusCode := doRequest(router, string(rest.Ontology)+parameters, t, method("GET"), nil)
+	gotOntologyResponse, statusCode := doRequest(router, route, t, method("GET"), nil)
 	require.Equal(t, http.StatusOK, statusCode)
 	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
 }
 
 func TestAcceptancePOST(t *testing.T) {
 	var body graph.PostBody
-	router := setupApp()
+	router, testGraph := setupApp()
+	route := fmt.Sprintf("%s?%s=%s", rest.Triples, graph.Graph, testGraph)
 	file, err := os.Open("test.json")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -61,18 +62,18 @@ func TestAcceptancePOST(t *testing.T) {
 	}
 
 	expectedQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {\n<http://test1> <http://test1> <http://test1> .\n<http://test2> <http://test2> <http://test2> .\n}}",
-		testingGraphURI)
-	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), &body)
+		testGraph)
+	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, route, t, method("POST"), &body)
 
 	require.Equal(t, http.StatusOK, gotKnowledgebaseStatus)
 	require.Equal(t, expectedQuery, gotKnowledgeBaseResponse.Query)
 
-	gotOntologyResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), &body)
+	gotOntologyResponse, gotOntologyStatus := doRequest(router, route, t, method("POST"), &body)
 	require.Equal(t, http.StatusOK, gotOntologyStatus)
 	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
 }
 
-func setupApp() *gin.Engine {
+func setupApp() (*gin.Engine, config.GraphURI) {
 	appRepository := config.Repository{}
 	config.Load("../../../", &appRepository)
 	testingOntologyURI := appRepository.TestGraphURI
@@ -82,7 +83,7 @@ func setupApp() *gin.Engine {
 	service := graph.NewService(virtuosoRepository)
 	router := rest.NewRouter(service, graph.OntologyGraphURI(testingOntologyURI), graph.KnowledgeBaseGraphURI(testingKnowledgebaseURI))
 
-	return router
+	return router, appRepository.TestGraphURI
 }
 
 func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body *graph.PostBody) (rest.Result, int) {

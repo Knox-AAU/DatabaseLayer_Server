@@ -63,7 +63,7 @@ func (r virtuosoRepository) GETBuilder(edges, subjects, objects []string, depth 
 }
 
 // buildSubQuery builds a subquery, encapsulated by paranthesis
-func buildSubQuery(elements []string, attribute graph.Attribute, _op operator) string {
+func buildSubQuery(elements []string, attribute graph.Parameter, _op operator) string {
 	if len(elements) == 0 {
 		return ""
 	}
@@ -85,6 +85,6 @@ func buildSubQuery(elements []string, attribute graph.Attribute, _op operator) s
 	return result + ")"
 }
 
-func buildContains(attribute graph.Attribute, element string) string {
+func buildContains(attribute graph.Parameter, element string) string {
 	return fmt.Sprintf(`contains(str(?%s), '%s')`, attribute, element)
 }

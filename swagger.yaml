@@ -50,17 +50,21 @@ definitions:
                 x-go-name: Triples
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest
-host: localhost:8080
+host: http://192.38.54.90
 info:
-    description: This package implements a REST HTTP API to facilitate communication with the KNOX database.
+    description: REST API for the KNOX database.
     title: Database Layer Server API.
-    version: 0.0.1
 paths:
-    /knowledge-base:
+    /triples:
         get:
-            description: To query the whole graph, leave all parameters empty.
-            operationId: getKnowledgeBase
+            description: To query the whole graph, leave parameters empty.
+            operationId: getTriples
             parameters:
+                - description: Target graph
+                  in: query
+                  name: g
+                  required: true
+                  type: string
                 - description: Subjects
                   in: query
                   items:
@@ -86,12 +90,17 @@ paths:
                     description: filtered triples response
                     schema:
                         $ref: '#/definitions/Result'
-            summary: This endpoint allows for querying with filters.
+            summary: This endpoint queries the graph for triples applying filters.
         post:
             description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
-            operationId: UpsertKnowledgeBase
+            operationId: UpsertTriples
             parameters:
-                - description: Triples to insert
+                - description: Target graph
+                  in: query
+                  name: g
+                  required: true
+                  type: string
+                - description: Triples to upsert
                   in: body
                   name: triples
                   required: true
@@ -101,59 +110,10 @@ paths:
                 - application/json
             responses:
                 "200":
-                    description: response with produced insert query
+                    description: response with produced query and null value for triples
                     schema:
                         $ref: '#/definitions/Result'
-            summary: This endpoint allows for insertion or updating of triples.
-    /ontology:
-        get:
-            description: To query the whole graph, leave all parameters empty.
-            operationId: getOntology
-            parameters:
-                - description: Subjects
-                  in: query
-                  items:
-                    type: string
-                  name: s
-                  type: array
-                - description: Objects
-                  in: query
-                  items:
-                    type: string
-                  name: o
-                  type: array
-                - description: Predicates
-                  in: query
-                  items:
-                    type: string
-                  name: p
-                  type: array
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: filtered triples response
-                    schema:
-                        $ref: '#/definitions/Result'
-            summary: This endpoint allows for querying with filters.
-        post:
-            description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
-            operationId: UpsertOntology
-            parameters:
-                - description: Triples to insert
-                  in: body
-                  name: triples
-                  required: true
-                  schema:
-                    $ref: '#/definitions/PostBody'
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: response with produced insert query
-                    schema:
-                        $ref: '#/definitions/Result'
-            summary: This endpoint allows for insertion or updating of triples.
+            summary: This endpoint upserts triples.
 produces:
     - application/json
 schemes:

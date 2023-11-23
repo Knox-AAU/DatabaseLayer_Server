@@ -11,3 +11,10 @@ func (p PostBody) Validate() error {
 	}
 	return nil
 }
+
+func (g TargetGraph) Validate() error {
+	if g == "" {
+		return fmt.Errorf("target graph cannot be empty")
+	}
+	return nil
+}

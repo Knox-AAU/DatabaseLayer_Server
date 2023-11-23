@@ -1,13 +1,12 @@
 // Package main Database Layer Server API.
 //
-// This package implements a REST HTTP API to facilitate communication with the KNOX database.
+// REST API for the KNOX database.
 //
 // Terms Of Service:
 //
 //	Schemes: http
-//	Host: localhost:8080
+//	Host: http://192.38.54.90
 //	BasePath: /
-//	Version: 0.0.1
 //
 //	Consumes:
 //	- application/json
