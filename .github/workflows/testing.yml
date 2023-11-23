@@ -5,8 +5,7 @@ name: Test
 
 on:
   push:
-    branches-ignore:
-      - "main"
+  workflow_dispatch:
 
 env:
   VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
