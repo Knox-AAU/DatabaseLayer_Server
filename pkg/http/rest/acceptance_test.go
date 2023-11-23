@@ -32,13 +32,19 @@ const (
 	testingGraphURI        = "http://testing"
 )
 
+type PostGetplaceholder struct {
+	res rest.Result
+}
+
+var GetRes PostGetplaceholder
+
 func TestAcceptanceGET(t *testing.T) {
 	router := setupApp()
 	parameters := "?p=x&p=y&s=z&s=j&o=h&o=k"
 	expectedQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}",
 		testingGraphURI)
 	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
-
+	GetRes.res = gotKnowledgebaseResponse
 	require.Equal(t, http.StatusOK, statusCode)
 	require.Equal(t, expectedQuery, gotKnowledgebaseResponse.Query)
 
@@ -70,6 +76,12 @@ func TestAcceptancePOST(t *testing.T) {
 	gotOntologyResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), &body)
 	require.Equal(t, http.StatusOK, gotOntologyStatus)
 	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
+}
+
+func TestGetPostChain(t *testing.T) {
+	TestAcceptancePOST(t)
+	TestAcceptanceGET(t)
+
 }
 
 func setupApp() *gin.Engine {
