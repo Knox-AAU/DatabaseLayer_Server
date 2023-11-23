@@ -33,10 +33,11 @@ const (
 )
 
 type PostGetplaceholder struct {
-	res rest.Result
+	getBody  rest.Result
+	postBody graph.PostBody
 }
 
-var GetRes PostGetplaceholder
+var Testplaceholder PostGetplaceholder
 
 func TestAcceptanceGET(t *testing.T) {
 	router := setupApp()
@@ -44,7 +45,7 @@ func TestAcceptanceGET(t *testing.T) {
 	expectedQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}",
 		testingGraphURI)
 	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
-	GetRes.res = gotKnowledgebaseResponse
+	Testplaceholder.getBody = gotKnowledgebaseResponse
 	require.Equal(t, http.StatusOK, statusCode)
 	require.Equal(t, expectedQuery, gotKnowledgebaseResponse.Query)
 
@@ -66,6 +67,8 @@ func TestAcceptancePOST(t *testing.T) {
 		log.Fatal(err)
 	}
 
+	Testplaceholder.postBody = body
+
 	expectedQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {\n<http://test1> <http://test1> <http://test1> .\n<http://test2> <http://test2> <http://test2> .\n}}",
 		testingGraphURI)
 	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), &body)
@@ -79,9 +82,18 @@ func TestAcceptancePOST(t *testing.T) {
 }
 
 func TestGetPostChain(t *testing.T) {
+	var expectedPostBody []graph.GetTriple
 	TestAcceptancePOST(t)
 	TestAcceptanceGET(t)
+	for i, triple := range Testplaceholder.postBody.Triples {
 
+		expectedPostBody[i].S.Value = triple[0]
+		expectedPostBody[i].P.Value = triple[1]
+		expectedPostBody[i].O.Value = triple[2]
+	}
+
+	actualGetBody := Testplaceholder.getBody.Triples
+	require.Equal(t, expectedPostBody, actualGetBody)
 }
 
 func setupApp() *gin.Engine {
