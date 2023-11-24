@@ -99,21 +99,21 @@ func TestAcceptance(t *testing.T) {
 
 	route := fmt.Sprintf("%s?%s=%s",
 		string(rest.Triples), graph.Graph, testGraph)
-	getRoute := fmt.Sprintf("%s&%s=%s&%s=%s&%s=%s&%s=%s&%s=%s&%s=%s",
-		route, graph.Predicate, triple1.P.Value, graph.Predicate, triple2.P.Value,
-		graph.Subject, triple1.S.Value, graph.Subject, triple2.S.Value,
-		graph.Object, triple1.O.Value, graph.Object, triple2.O.Value)
 
 	gotPOSTResponse, gotPOSTStatus := doRequest(router, route, t, method("POST"), body)
 
 	require.Equal(t, go_http.StatusOK, gotPOSTStatus)
 	require.Equal(t, expectedPostQuery, gotPOSTResponse.Query)
 
-	gotGETResponse, statusCode := doRequest(router, getRoute, t, method("GET"), nil)
+	gotGETResponse, statusCode := doRequest(router, fmt.Sprintf("%s&%s=%s&%s=%s&%s=%s&%s=%s&%s=%s&%s=%s",
+		route, graph.Predicate, triple1.P.Value, graph.Predicate, triple2.P.Value,
+		graph.Subject, triple1.S.Value, graph.Subject, triple2.S.Value,
+		graph.Object, triple1.O.Value, graph.Object, triple2.O.Value), t, method("GET"), nil)
+
 	require.Equal(t, go_http.StatusOK, statusCode)
 	require.Equal(t, expectedGetQuery, gotGETResponse.Query)
 	// assert that triples have been inserted
-	sliceEquals(t, triples, gotGETResponse.Triples, gotGETResponse.Query)
+	sliceEquals(t, triples, gotGETResponse.Triples, gotGETResponse.Query, body)
 }
 
 func sliceEquals(t *testing.T, want, got []graph.GetTriple, msg ...interface{}) {
