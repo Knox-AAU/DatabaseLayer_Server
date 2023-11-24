@@ -73,12 +73,12 @@ jobs:
         id: test_virtuoso
         run: |
           json_string=$(echo "${response}" | python -c '
-            # time to fucking shine
-            import requests
-            res = requests.post(f"{{ env.VIRTUOSO_SERVER_URL }}/conductor/isql.vspx", data="DB.DBA.RDF_DEFAULT_USER_PERMS_SET ('nobody', 7);")
-            if res.status_code != 200: 
-              raise Exception("could not set user permissions")
-            print("created graph in virtuoso")
+          # time to fucking shine
+          import requests
+          res = requests.post(f"{{ env.VIRTUOSO_SERVER_URL }}/conductor/isql.vspx", data="DB.DBA.RDF_DEFAULT_USER_PERMS_SET ('nobody', 7);")
+          if res.status_code != 200: 
+            raise Exception("could not set user permissions")
+          print("created graph in virtuoso")
           ')
 
           echo $json_string
