@@ -47,7 +47,7 @@ jobs:
         ports:
           - 8890:8890
     env:    
-      VIRTUOSO_SERVER_URL: http://localhost:8890/sparql/
+      VIRTUOSO_SERVER_URL: http://localhost:8890/
       VIRTUOSO_GRAPH_URI: http://testing
       VIRTUOSO_TEST_GRAPH_URI: http://testing
       VIRTUOSO_ONTOLOGY_GRAPH_URI: http://testing
@@ -72,12 +72,12 @@ jobs:
       - name: Health check and create graph
         id: test_virtuoso
         run: |
-          curl -s -H "Accept: application/json" -G --data-urlencode "query=DB.DBA.RDF_DEFAULT_USER_PERMS_SET ('nobody', 0);" $VIRTUOSO_SERVER_URL
-          curl -s -H "Accept: application/json" -G --data-urlencode "query=CREATE GRAPH <$VIRTUOSO_TEST_GRAPH_URI> . " $VIRTUOSO_SERVER_URL
+          curl -s -H "Accept: application/json" -G --data-urlencode "query=DB.DBA.RDF_DEFAULT_USER_PERMS_SET ('nobody', 0);" $VIRTUOSO_SERVER_URL/conductor/isql
+          curl -s -H "Accept: application/json" -G --data-urlencode "query=CREATE GRAPH <$VIRTUOSO_TEST_GRAPH_URI> . " $VIRTUOSO_SERVER_URL/sparql
           curl -s -H "Accept: application/json" -G --data-urlencode """query=INSERT DATA { GRAPH <VIRTUOSO_TEST_GRAPH_URI> { 
             <test> <test> <test> . 
-            }}""" $VIRTUOSO_SERVER_URL
-          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=SELECT ?s ?p ?o WHERE { GRAPH <VIRTUOSO_TEST_GRAPH_URI> { ?s ?p ?o }}" $VIRTUOSO_SERVER_URL)
+            }}""" $VIRTUOSO_SERVER_URL/sparql
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=SELECT ?s ?p ?o WHERE { GRAPH <VIRTUOSO_TEST_GRAPH_URI> { ?s ?p ?o }}" $VIRTUOSO_SERVER_URL/sparql)
           echo $OUTPUT
         shell: bash
 
