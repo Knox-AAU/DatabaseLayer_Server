@@ -54,13 +54,17 @@ func (r virtuosoRepository) ExecuteGET(query string) ([]graph.GetTriple, error) 
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
 
-	res, err := r.send(req)
+	response, err := r.send(req)
 	if err != nil {
 		return nil, fmt.Errorf("executing query: %w", err)
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(res.Body)
+	buf.ReadFrom(response.Body)
+
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(fmt.Sprintf("error executing query: %s %s", response.Status, buf.String()))
+	}
 
 	virtuosoRes := graph.VirtuosoResponse{}
 	if err := json.Unmarshal(buf.Bytes(), &virtuosoRes); err != nil {
@@ -78,8 +82,17 @@ func (r virtuosoRepository) ExeutePOST(query string) error {
 	}
 
 	req.Header.Set("Content-Type", "application/sparql-update")
-	if _, err := r.send(req); err != nil {
+	response, err := r.send(req)
+	if err != nil {
 		return fmt.Errorf("executing query: %w", err)
+	}
+
+	if response.StatusCode != http.StatusOK {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(response.Body)
+		msg := fmt.Sprintf("error executing query: %s %s", response.Status, buf.String())
+
+		return fmt.Errorf(msg)
 	}
 
 	return nil
