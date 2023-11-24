@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -63,12 +64,8 @@ func (r virtuosoRepository) ExecuteGET(query string) ([]graph.GetTriple, error) 
 
 	virtuosoRes := graph.VirtuosoResponse{}
 	if err := json.Unmarshal(buf.Bytes(), &virtuosoRes); err != nil {
-		var body interface{}
-		if _err := json.Unmarshal(buf.Bytes(), &body); err != nil {
-			return nil, fmt.Errorf("unmarshal response: %w%w", _err, err)
-		}
-
-		return nil, fmt.Errorf("error unmarshalling response: %s, wanted %T but got %v", err.Error(), virtuosoRes, body)
+		log.Println(buf.Bytes())
+		return nil, fmt.Errorf("error unmarshalling response: %s", err.Error())
 	}
 
 	return virtuosoRes.Results.Bindings, nil
