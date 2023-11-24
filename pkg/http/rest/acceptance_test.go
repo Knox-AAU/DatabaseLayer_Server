@@ -94,6 +94,8 @@ func TestAcceptance(t *testing.T) {
 	}
 
 	expectedPostQuery += "}}"
+	expectedGetQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), '%s') || contains(str(?s), '%s')) && (contains(str(?o), '%s') || contains(str(?o), '%s')) && (contains(str(?p), '%s') || contains(str(?p), '%s'))) . }}",
+		testGraph, triple1.S.Value, triple2.S.Value, triple1.O.Value, triple2.O.Value, triple1.P.Value, triple2.P.Value)
 
 	route := fmt.Sprintf("%s?%s=%s",
 		string(rest.Triples), graph.Graph, testGraph)
@@ -102,27 +104,16 @@ func TestAcceptance(t *testing.T) {
 		graph.Subject, triple1.S.Value, graph.Subject, triple2.S.Value,
 		graph.Object, triple1.O.Value, graph.Object, triple2.O.Value)
 
-	expectedGetQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), '%s') || contains(str(?s), '%s')) && (contains(str(?o), '%s') || contains(str(?o), '%s')) && (contains(str(?p), '%s') || contains(str(?p), '%s'))) . }}",
-		testGraph, triple1.S.Value, triple2.S.Value, triple1.O.Value, triple2.O.Value, triple1.P.Value, triple2.P.Value)
+	gotPOSTResponse, gotPOSTStatus := doRequest(router, route, t, method("POST"), body)
 
-	gotPOSTKnowledgeBaseResponse, gotPOSTKnowledgebaseStatus := doRequest(router, route, t, method("POST"), body)
+	require.Equal(t, go_http.StatusOK, gotPOSTStatus)
+	require.Equal(t, expectedPostQuery, gotPOSTResponse.Query)
 
-	require.Equal(t, go_http.StatusOK, gotPOSTKnowledgebaseStatus)
-	require.Equal(t, expectedPostQuery, gotPOSTKnowledgeBaseResponse.Query)
-
-	gotPOSTOntologyPostResponse, gotPOSTOntologyStatus := doRequest(router, route, t, method("POST"), body)
-	require.Equal(t, go_http.StatusOK, gotPOSTOntologyStatus)
-	require.Equal(t, expectedPostQuery, gotPOSTOntologyPostResponse.Query)
-
-	gotGETKnowledgebaseResponse, statusCode := doRequest(router, getRoute, t, method("GET"), nil)
+	gotGETResponse, statusCode := doRequest(router, getRoute, t, method("GET"), nil)
 	require.Equal(t, go_http.StatusOK, statusCode)
-	require.Equal(t, expectedGetQuery, gotGETKnowledgebaseResponse.Query)
-
-	gotGETOntologyResponse, statusCode := doRequest(router, getRoute, t, method("GET"), nil)
-	require.Equal(t, go_http.StatusOK, statusCode)
-	require.Equal(t, expectedGetQuery, gotGETOntologyResponse.Query)
+	require.Equal(t, expectedGetQuery, gotGETResponse.Query)
 	// assert that triples have been inserted
-	sliceEquals(t, triples, gotGETOntologyResponse.Triples)
+	sliceEquals(t, triples, gotGETResponse.Triples)
 }
 
 func sliceEquals(t *testing.T, want, got []graph.GetTriple) {
