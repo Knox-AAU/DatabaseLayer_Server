@@ -65,21 +65,22 @@ Note that the ports map to the ports used in the ssh command.
 
 ## Endpoint Documentation
 
-### /knowledge-base
+### /triples
 
 #### GET
 ##### Summary:
 
-This endpoint allows for querying with filters.
+This endpoint queries the graph for triples applying filters.
 
 ##### Description:
 
-To query the whole graph, leave all parameters empty.
+To query the whole graph, leave parameters empty.
 
 ##### Parameters
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
+| g | query | Target graph | Yes | string |
 | s | query | Subjects | No | [ string ] |
 | o | query | Objects | No | [ string ] |
 | p | query | Predicates | No | [ string ] |
@@ -93,7 +94,7 @@ To query the whole graph, leave all parameters empty.
 #### POST
 ##### Summary:
 
-This endpoint allows for insertion or updating of triples.
+This endpoint upserts triples.
 
 ##### Description:
 
@@ -103,59 +104,14 @@ If a new predicate is sent with an existing subject, will the existing subject b
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| triples | body | Triples to insert | Yes | [PostBody](#postbody) |
+| g | query | Target graph | Yes | string |
+| triples | body | Triples to upsert | Yes | [PostBody](#postbody) |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | response with produced insert query | [Result](#result) |
-
-### /ontology
-
-#### GET
-##### Summary:
-
-This endpoint allows for querying with filters.
-
-##### Description:
-
-To query the whole graph, leave all parameters empty.
-
-##### Parameters
-
-| Name | Located in | Description | Required | Schema |
-| ---- | ---------- | ----------- | -------- | ---- |
-| s | query | Subjects | No | [ string ] |
-| o | query | Objects | No | [ string ] |
-| p | query | Predicates | No | [ string ] |
-
-##### Responses
-
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | filtered triples response | [Result](#result) |
-
-#### POST
-##### Summary:
-
-This endpoint allows for insertion or updating of triples.
-
-##### Description:
-
-If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
-
-##### Parameters
-
-| Name | Located in | Description | Required | Schema |
-| ---- | ---------- | ----------- | -------- | ---- |
-| triples | body | Triples to insert | Yes | [PostBody](#postbody) |
-
-##### Responses
-
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | response with produced insert query | [Result](#result) |
+| 200 | response with produced query and null value for triples | [Result](#result) |
 
 ### Models
 
