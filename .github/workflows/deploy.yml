@@ -72,6 +72,7 @@ jobs:
       - name: Health check and create graph
         id: test_virtuoso
         run: |
+          curl -s -H "Accept: application/json" -G --data-urlencode "query=DB.DBA.RDF_DEFAULT_USER_PERMS_SET ('nobody', 0);" $VIRTUOSO_SERVER_URL
           curl -s -H "Accept: application/json" -G --data-urlencode "query=CREATE GRAPH <$VIRTUOSO_TEST_GRAPH_URI> . " $VIRTUOSO_SERVER_URL
           curl -s -H "Accept: application/json" -G --data-urlencode """query=INSERT DATA { GRAPH <VIRTUOSO_TEST_GRAPH_URI> { 
             <test> <test> <test> . 
