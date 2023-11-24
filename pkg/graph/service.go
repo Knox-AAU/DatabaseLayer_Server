@@ -8,7 +8,6 @@ type Service interface {
 }
 
 type Repository interface {
-	// Execute executes a SPARQL query and returns the response from the repository
 	ExecuteGET(string) ([]GetTriple, error)
 	ExeutePOST(string) error
 	// GETBuilder takes three arrays of strings, and a limit and returns a SPARQL query
