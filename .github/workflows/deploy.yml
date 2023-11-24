@@ -69,10 +69,10 @@ jobs:
       - name: Sleep seconds
         run: sleep 10
 
-      - name: Health check
+      - name: Health check and create graph
         id: test_virtuoso
         run: |
-          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" $VIRTUOSO_SERVER_URL)
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=CREATE GRAPH <$VIRTUOSO_TEST_GRAPH_URI>" $VIRTUOSO_SERVER_URL)
           echo "::set-output name=response::$OUTPUT"
         shell: bash
 
