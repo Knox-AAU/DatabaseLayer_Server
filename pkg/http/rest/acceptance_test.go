@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
@@ -15,6 +13,7 @@ import (
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest"
 	virtuoso "github.com/Knox-AAU/DatabaseLayer_Server/pkg/storage/virtuoso/http"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -32,41 +31,94 @@ const (
 	testingGraphURI        = "http://testing"
 )
 
+func createRandomTriple() (*graph.GetTriple, error) {
+	const _type = "uri"
+	s, err := uuid.NewUUID()
+	if err != nil {
+		return nil, err
+	}
+	o, err := uuid.NewUUID()
+	if err != nil {
+		return nil, err
+	}
+	p, err := uuid.NewUUID()
+	if err != nil {
+		return nil, err
+	}
+	triple := graph.GetTriple{
+		S: graph.BindingAttribute{
+			Type:  _type,
+			Value: s.String(),
+		},
+		O: graph.BindingAttribute{
+			Type:  _type,
+			Value: o.String(),
+		},
+		P: graph.BindingAttribute{
+			Type:  _type,
+			Value: p.String(),
+		},
+	}
+	return &triple, nil
+}
+
+func toPostBody(getTriple []graph.GetTriple) graph.PostBody {
+	var body graph.PostBody
+	body.Triples = make([][3]string, len(getTriple))
+	for i, triple := range getTriple {
+		body.Triples[i] = [3]string{
+			triple.S.Value,
+			triple.P.Value,
+			triple.O.Value,
+		}
+	}
+
+	return body
+}
+
 func TestAcceptancePOSTGET(t *testing.T) {
 	router := setupApp()
-	var body graph.PostBody
-	file, err := os.Open("test.json")
-	if err != nil {
-		fmt.Println("Error opening file:", err)
+	triple1, err := createRandomTriple()
+	require.NoError(t, err, "could not create random triple")
+
+	triple2, err := createRandomTriple()
+	require.NoError(t, err, "could not create random triple")
+
+	triples := []graph.GetTriple{*triple1, *triple2}
+	body := toPostBody(triples)
+
+	expectedPostQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {\n",
+		testingGraphURI)
+
+	for _, triple := range triples {
+		expectedPostQuery += fmt.Sprintf("<%s> <%s> <%s> .\n", triple.S.Value, triple.P.Value, triple.O.Value)
 	}
 
-	err = json.NewDecoder(file).Decode(&body)
-	if err != nil {
-		log.Fatal(err)
-	}
+	expectedPostQuery += "}\n}"
 
-	expectedPostQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {\n<http://test1> <http://test1> <http://test1> .\n<http://test2> <http://test2> <http://test2> .\n}}",
-		testingGraphURI)
-	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), &body)
+	parameters := fmt.Sprintf("?p=%s&p=%s&s=%s&s=%s&o=%s&o=%s",
+		triple1.S.Value, triple2.S.Value, triple1.P.Value, triple2.P.Value, triple1.O.Value, triple2.O.Value)
+	expectedGetQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), '%s') || contains(str(?s), '%s')) && (contains(str(?o), '%s') || contains(str(?o), '%s')) && (contains(str(?p), '%s') || contains(str(?p), '%s'))) . }}",
+		testingGraphURI, triple1.S.Value, triple2.S.Value, triple1.P.Value, triple2.P.Value, triple1.O.Value, triple2.O.Value)
 
-	require.Equal(t, http.StatusOK, gotKnowledgebaseStatus)
-	require.Equal(t, expectedPostQuery, gotKnowledgeBaseResponse.Query)
+	gotPOSTKnowledgeBaseResponse, gotPOSTKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), &body)
 
-	gotOntologyPostResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), &body)
-	require.Equal(t, http.StatusOK, gotOntologyStatus)
-	require.Equal(t, expectedPostQuery, gotOntologyPostResponse.Query)
+	require.Equal(t, http.StatusOK, gotPOSTKnowledgebaseStatus)
+	require.Equal(t, expectedPostQuery, gotPOSTKnowledgeBaseResponse.Query)
 
-	parameters := "?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedGetQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}",
-		testingGraphURI)
-	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
+	gotPOSTOntologyPostResponse, gotPOSTOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), &body)
+	require.Equal(t, http.StatusOK, gotPOSTOntologyStatus)
+	require.Equal(t, expectedPostQuery, gotPOSTOntologyPostResponse.Query)
+
+	gotGETKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
 	require.Equal(t, http.StatusOK, statusCode)
-	require.Equal(t, expectedGetQuery, gotKnowledgebaseResponse.Query)
+	require.Equal(t, expectedGetQuery, gotGETKnowledgebaseResponse.Query)
 
-	gotOntologyGetResponse, statusCode := doRequest(router, string(rest.Ontology)+parameters, t, method("GET"), nil)
+	gotGETOntologyResponse, statusCode := doRequest(router, string(rest.Ontology)+parameters, t, method("GET"), nil)
 	require.Equal(t, http.StatusOK, statusCode)
-	require.Equal(t, expectedGetQuery, gotOntologyGetResponse.Query)
-
+	require.Equal(t, expectedGetQuery, gotGETOntologyResponse.Query)
+	// assert that triples have been inserted
+	require.Equal(t, triples, gotGETOntologyResponse.Triples)
 }
 
 func setupApp() *gin.Engine {
