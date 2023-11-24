@@ -113,10 +113,10 @@ func TestAcceptance(t *testing.T) {
 	require.Equal(t, go_http.StatusOK, statusCode)
 	require.Equal(t, expectedGetQuery, gotGETResponse.Query)
 	// assert that triples have been inserted
-	sliceEquals(t, triples, gotGETResponse.Triples)
+	sliceEquals(t, triples, gotGETResponse.Triples, gotGETResponse.Query)
 }
 
-func sliceEquals(t *testing.T, want, got []graph.GetTriple) {
+func sliceEquals(t *testing.T, want, got []graph.GetTriple, msg ...interface{}) {
 	for _, wantTriple := range want {
 		found := false
 		for _, gotTriple := range got {
@@ -125,7 +125,7 @@ func sliceEquals(t *testing.T, want, got []graph.GetTriple) {
 			}
 		}
 		if !found {
-			require.Equal(t, want, got)
+			require.Equal(t, want, got, msg...)
 		}
 	}
 }
