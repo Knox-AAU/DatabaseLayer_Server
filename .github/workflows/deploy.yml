@@ -73,8 +73,10 @@ jobs:
         id: test_virtuoso
         run: |
           curl -s -H "Accept: application/json" -G --data-urlencode "query=CREATE GRAPH <$VIRTUOSO_TEST_GRAPH_URI> . " $VIRTUOSO_SERVER_URL
-          curl -s -H "Accept: application/json" -G --data-urlencode "query=INSERT DATA { GRAPH <delete_me> {\n <test> <test> <test> .\n}}" $VIRTUOSO_SERVER_URL
-          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=SELECT ?s ?p ?o WHERE { GRAPH <delete_me> { ?s ?p ?o }}" $VIRTUOSO_SERVER_URL)
+          curl -s -H "Accept: application/json" -G --data-urlencode """query=INSERT DATA { GRAPH <VIRTUOSO_TEST_GRAPH_URI> { 
+            <test> <test> <test> . 
+            }}""" $VIRTUOSO_SERVER_URL
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=SELECT ?s ?p ?o WHERE { GRAPH <VIRTUOSO_TEST_GRAPH_URI> { ?s ?p ?o }}" $VIRTUOSO_SERVER_URL)
           echo $OUTPUT
         shell: bash
 
