@@ -61,11 +61,11 @@ func createRandomTriple() (*graph.GetTriple, error) {
 	return &triple, nil
 }
 
-func toPostBody(getTriple []graph.GetTriple) graph.PostBody {
-	var body graph.PostBody
-	body.Triples = make([][]string, len(getTriple))
+func toPostBody(getTriple []graph.GetTriple) map[string][][]string {
+	body := make(map[string][][]string)
+	body["triples"] = make([][]string, len(getTriple))
 	for i, triple := range getTriple {
-		body.Triples[i] = []string{
+		body["triples"][i] = []string{
 			triple.S.Value,
 			triple.P.Value,
 			triple.O.Value,
@@ -105,12 +105,12 @@ func TestAcceptance(t *testing.T) {
 	expectedGetQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), '%s') || contains(str(?s), '%s')) && (contains(str(?o), '%s') || contains(str(?o), '%s')) && (contains(str(?p), '%s') || contains(str(?p), '%s'))) . }}",
 		testGraph, triple1.S.Value, triple2.S.Value, triple1.O.Value, triple2.O.Value, triple1.P.Value, triple2.P.Value)
 
-	gotPOSTKnowledgeBaseResponse, gotPOSTKnowledgebaseStatus := doRequest(router, route, t, method("POST"), &body)
+	gotPOSTKnowledgeBaseResponse, gotPOSTKnowledgebaseStatus := doRequest(router, route, t, method("POST"), body)
 
 	require.Equal(t, go_http.StatusOK, gotPOSTKnowledgebaseStatus)
 	require.Equal(t, expectedPostQuery, gotPOSTKnowledgeBaseResponse.Query)
 
-	gotPOSTOntologyPostResponse, gotPOSTOntologyStatus := doRequest(router, route, t, method("POST"), &body)
+	gotPOSTOntologyPostResponse, gotPOSTOntologyStatus := doRequest(router, route, t, method("POST"), body)
 	require.Equal(t, go_http.StatusOK, gotPOSTOntologyStatus)
 	require.Equal(t, expectedPostQuery, gotPOSTOntologyPostResponse.Query)
 
@@ -152,7 +152,7 @@ func setupApp() (*gin.Engine, config.GraphURI) {
 	return router, appRepository.TestGraphURI
 }
 
-func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body *graph.PostBody) (rest.Result, int) {
+func doRequest(router *gin.Engine, path string, t *testing.T, _method method, body map[string][][]string) (rest.Result, int) {
 	var req *go_http.Request
 	var err error
 	switch {
@@ -162,7 +162,7 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 		}
 	case _method == method("POST") && body != nil:
 		{
-			jsonPayload, err := json.Marshal(*body)
+			jsonPayload, err := json.Marshal(body)
 			require.NoError(t, err)
 
 			req, err = go_http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
