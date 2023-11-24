@@ -159,9 +159,6 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 			require.NoError(t, err)
 
 			req, err = go_http.NewRequest(string(_method), path, bytes.NewBuffer(jsonPayload))
-			if err != nil {
-				t.Fatalf("Error in POST request, error: %s", err)
-			}
 		}
 	default:
 		{
@@ -180,7 +177,7 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 
 	err = json.NewDecoder(response.Body).Decode(&actualResponse)
 	require.NoError(t, err)
-	require.Empty(t, actualResponse.ErrMessage)
+	require.Empty(t, actualResponse.ErrMessage, response.Body)
 
 	return rest.Result{
 		Query:   actualResponse.Query,

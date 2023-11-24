@@ -86,7 +86,7 @@ func getHandler(s graph.Service) func(c *gin.Context) {
 		query := s.GETBuilder(edges, subjects, objects, depth, targetGraph)
 		triples, err := s.ExecuteGET(query)
 		if err != nil {
-			msg := fmt.Sprintf("error executing query: %s", err.Error())
+			msg := fmt.Sprintf("repository: %s", err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			return
 		}

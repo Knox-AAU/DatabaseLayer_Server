@@ -63,7 +63,7 @@ func (r virtuosoRepository) ExecuteGET(query string) ([]graph.GetTriple, error) 
 
 	virtuosoRes := graph.VirtuosoResponse{}
 	if err := json.Unmarshal(buf.Bytes(), &virtuosoRes); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unmarshal response: %w", err)
 	}
 
 	return virtuosoRes.Results.Bindings, nil
