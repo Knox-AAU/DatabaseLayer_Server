@@ -32,23 +32,9 @@ const (
 	testingGraphURI        = "http://testing"
 )
 
-func TestAcceptanceGET(t *testing.T) {
+func TestAcceptancePOSTGET(t *testing.T) {
 	router := setupApp()
-	parameters := "?p=x&p=y&s=z&s=j&o=h&o=k"
-	expectedQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}",
-		testingGraphURI)
-	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
-	require.Equal(t, http.StatusOK, statusCode)
-	require.Equal(t, expectedQuery, gotKnowledgebaseResponse.Query)
-
-	gotOntologyResponse, statusCode := doRequest(router, string(rest.Ontology)+parameters, t, method("GET"), nil)
-	require.Equal(t, http.StatusOK, statusCode)
-	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
-}
-
-func TestAcceptancePOST(t *testing.T) {
 	var body graph.PostBody
-	router := setupApp()
 	file, err := os.Open("test.json")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -59,16 +45,28 @@ func TestAcceptancePOST(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	expectedQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {\n<http://test1> <http://test1> <http://test1> .\n<http://test2> <http://test2> <http://test2> .\n}}",
+	expectedPostQuery := fmt.Sprintf("INSERT DATA { GRAPH <%s> {\n<http://test1> <http://test1> <http://test1> .\n<http://test2> <http://test2> <http://test2> .\n}}",
 		testingGraphURI)
 	gotKnowledgeBaseResponse, gotKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), &body)
 
 	require.Equal(t, http.StatusOK, gotKnowledgebaseStatus)
-	require.Equal(t, expectedQuery, gotKnowledgeBaseResponse.Query)
+	require.Equal(t, expectedPostQuery, gotKnowledgeBaseResponse.Query)
 
-	gotOntologyResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), &body)
+	gotOntologyPostResponse, gotOntologyStatus := doRequest(router, string(rest.Ontology), t, method("POST"), &body)
 	require.Equal(t, http.StatusOK, gotOntologyStatus)
-	require.Equal(t, expectedQuery, gotOntologyResponse.Query)
+	require.Equal(t, expectedPostQuery, gotOntologyPostResponse.Query)
+
+	parameters := "?p=x&p=y&s=z&s=j&o=h&o=k"
+	expectedGetQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), 'z') || contains(str(?s), 'j')) && (contains(str(?o), 'h') || contains(str(?o), 'k')) && (contains(str(?p), 'x') || contains(str(?p), 'y'))) . }}",
+		testingGraphURI)
+	gotKnowledgebaseResponse, statusCode := doRequest(router, string(rest.KnowledgeBase)+parameters, t, method("GET"), nil)
+	require.Equal(t, http.StatusOK, statusCode)
+	require.Equal(t, expectedGetQuery, gotKnowledgebaseResponse.Query)
+
+	gotOntologyGetResponse, statusCode := doRequest(router, string(rest.Ontology)+parameters, t, method("GET"), nil)
+	require.Equal(t, http.StatusOK, statusCode)
+	require.Equal(t, expectedGetQuery, gotOntologyGetResponse.Query)
+
 }
 
 func setupApp() *gin.Engine {
