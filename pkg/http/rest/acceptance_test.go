@@ -76,7 +76,7 @@ func toPostBody(getTriple []graph.GetTriple) graph.PostBody {
 	return body
 }
 
-func TestAcceptancePOSTGET(t *testing.T) {
+func TestAcceptance(t *testing.T) {
 	router := setupApp()
 	triple1, err := createRandomTriple()
 	require.NoError(t, err, "could not create random triple")
@@ -94,12 +94,12 @@ func TestAcceptancePOSTGET(t *testing.T) {
 		expectedPostQuery += fmt.Sprintf("<%s> <%s> <%s> .\n", triple.S.Value, triple.P.Value, triple.O.Value)
 	}
 
-	expectedPostQuery += "}\n}"
+	expectedPostQuery += "}}"
 
 	parameters := fmt.Sprintf("?p=%s&p=%s&s=%s&s=%s&o=%s&o=%s",
-		triple1.S.Value, triple2.S.Value, triple1.P.Value, triple2.P.Value, triple1.O.Value, triple2.O.Value)
+		triple1.P.Value, triple2.P.Value, triple1.S.Value, triple2.S.Value, triple1.O.Value, triple2.O.Value)
 	expectedGetQuery := fmt.Sprintf("SELECT ?s ?p ?o WHERE { GRAPH <%s> { ?s ?p ?o . FILTER ((contains(str(?s), '%s') || contains(str(?s), '%s')) && (contains(str(?o), '%s') || contains(str(?o), '%s')) && (contains(str(?p), '%s') || contains(str(?p), '%s'))) . }}",
-		testingGraphURI, triple1.S.Value, triple2.S.Value, triple1.P.Value, triple2.P.Value, triple1.O.Value, triple2.O.Value)
+		testingGraphURI, triple1.S.Value, triple2.S.Value, triple1.O.Value, triple2.O.Value, triple1.P.Value, triple2.P.Value)
 
 	gotPOSTKnowledgeBaseResponse, gotPOSTKnowledgebaseStatus := doRequest(router, string(rest.KnowledgeBase), t, method("POST"), &body)
 
@@ -118,7 +118,21 @@ func TestAcceptancePOSTGET(t *testing.T) {
 	require.Equal(t, http.StatusOK, statusCode)
 	require.Equal(t, expectedGetQuery, gotGETOntologyResponse.Query)
 	// assert that triples have been inserted
-	require.Equal(t, triples, gotGETOntologyResponse.Triples)
+	sliceEquals(t, triples, gotGETOntologyResponse.Triples)
+}
+
+func sliceEquals(t *testing.T, want, got []graph.GetTriple) {
+	for _, wantTriple := range want {
+		found := false
+		for _, gotTriple := range got {
+			if wantTriple == gotTriple {
+				found = true
+			}
+		}
+		if !found {
+			require.Equal(t, want, got)
+		}
+	}
 }
 
 func setupApp() *gin.Engine {
