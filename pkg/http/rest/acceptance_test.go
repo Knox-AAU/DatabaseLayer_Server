@@ -177,7 +177,14 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 
 	err = json.NewDecoder(response.Body).Decode(&actualResponse)
 	require.NoError(t, err)
-	require.Empty(t, actualResponse.ErrMessage, response.Body)
+
+	if actualResponse.ErrMessage != "" {
+		var body interface{}
+		err = json.NewDecoder(response.Body).Decode(&body)
+
+		require.NoError(t, err, actualResponse.ErrMessage)
+		require.Empty(t, actualResponse.ErrMessage, body)
+	}
 
 	return rest.Result{
 		Query:   actualResponse.Query,
