@@ -72,8 +72,9 @@ jobs:
       - name: Health check and create graph
         id: test_virtuoso
         run: |
-          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=CREATE GRAPH <$VIRTUOSO_TEST_GRAPH_URI>" $VIRTUOSO_SERVER_URL)
-          echo "::set-output name=response::$OUTPUT"
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=CREATE GRAPH <$VIRTUOSO_TEST_GRAPH_URI> . " $VIRTUOSO_SERVER_URL)
+          curl -s -H "Accept: application/json" -G --data-urlencode "query=INSERT DATA { GRAPH <delete_me> {\n <test> <test> <test> .\n}}" $VIRTUOSO_SERVER_URL
+          curl -s -H "Accept: application/json" -G --data-urlencode "query=SELECT ?s ?p ?o WHERE { GRAPH <delete_me> { ?s ?p ?o }}" $VIRTUOSO_SERVER_URL
         shell: bash
 
       - name: Run Go Tests
