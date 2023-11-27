@@ -16,7 +16,7 @@ type (
 	VirtuosoURL string
 )
 
-type Repository struct {
+type Config struct {
 	VirtuosoURL      VirtuosoURL
 	OntologyGraphURI GraphURI
 	GraphURI         GraphURI
@@ -25,7 +25,7 @@ type Repository struct {
 	VirtuosoPassword string
 }
 
-func Load(rootPath string, config *Repository) {
+func Load(rootPath string, config *Config) {
 	if err := godotenv.Load(filepath.Join(strings.TrimSpace(rootPath), ".env")); err != nil {
 		log.Println("ignoring error when loading env file:", err)
 	}

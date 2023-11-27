@@ -28,7 +28,7 @@ import (
 )
 
 func main() {
-	appRepository := config.Repository{}
+	appRepository := config.Config{}
 	config.Load("..", &appRepository)
 	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)

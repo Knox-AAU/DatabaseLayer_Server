@@ -134,7 +134,7 @@ func sliceEquals(t *testing.T, want, got []graph.GetTriple, msg ...interface{}) 
 }
 
 func setupApp() (*gin.Engine, config.GraphURI) {
-	appRepository := config.Repository{}
+	appRepository := config.Config{}
 	config.Load("../../../", &appRepository)
 	testingOntologyURI := appRepository.TestGraphURI
 	testingKnowledgebaseURI := appRepository.TestGraphURI
