@@ -47,7 +47,6 @@ jobs:
         ports:
           - 8890:8890
     env:    
-      VIRTUOSO_BASE_URL: http://localhost:8890
       VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
       VIRTUOSO_GRAPH_URI: http://testing
       VIRTUOSO_TEST_GRAPH_URI: http://testing
@@ -70,30 +69,12 @@ jobs:
       - name: Sleep seconds
         run: sleep 10
 
-      - name: Health check and create graph
+      - name: Health check
         id: test_virtuoso
         run: |
-          json_string=$(echo "${response}" | python -c '
-          # time to fucking shine
-          import requests
-          res = requests.post(f"${{ env.VIRTUOSO_BASE_URL }}/conductor/isql.vspx", data="DB.DBA.RDF_DEFAULT_USER_PERMS_SET ('nobody', 7);")
-          if res.status_code != 200: raise Exception("could not set user permissions")
-          
-          res=requests.post(f"${{ env.VIRTUOSO_SERVER_URL }}",data="CREATE GRAPH <${{ env.VIRTUOSO_TEST_GRAPH_URI }}> . ")
-          if res.status_code != 200: raise Exception("could not create graph")
-          res=requests.post(f"${{ env.VIRTUOSO_SERVER_URL }}",data="""INSERT DATA { GRAPH <${{ env.VIRTUOSO_TEST_GRAPH_URI }}> { 
-            <test> <test> <test> . 
-            }}""")
-          if res.status_code != 200: raise Exception("could not insert data")
-          res=requests.post(f"${{ env.VIRTUOSO_SERVER_URL }}",data="SELECT ?s ?p ?o WHERE { GRAPH <${{ env.VIRTUOSO_TEST_GRAPH_URI }}> { ?s ?p ?o }}")
-          if res.status_code != 200: raise Exception("could not get data")
-          
-          print("created graph in virtuoso")
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" $VIRTUOSO_SERVER_URL)
+          echo "::set-output name=response::$OUTPUT"
+        shell: bash
 
-          ')
-
-          echo $json_string
-          
-          echo "JOB_LOG=$json_string" >> $GITHUB_ENV
       - name: Run Go Tests
         run: go test ./...
