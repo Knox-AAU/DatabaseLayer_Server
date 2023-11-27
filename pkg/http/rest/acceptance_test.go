@@ -115,7 +115,7 @@ func TestAcceptance(t *testing.T) {
 	// assert that triples have been inserted
 	// TODO: fix testing github action. Currently, no graph is created in the virtuoso triple store
 	// hence, the test fails because insertion and retrieval of triples is not possible
-	// sliceEquals(t, triples, gotGETResponse.Triples, gotGETResponse.Query, body)
+	sliceEquals(t, triples, gotGETResponse.Triples, gotGETResponse.Query, body)
 
 }
 
