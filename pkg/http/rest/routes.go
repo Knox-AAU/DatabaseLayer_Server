@@ -20,8 +20,8 @@ const (
 
 func NewRouter(s graph.Service, ontologyGraph graph.OntologyGraphURI, knowledgeBaseGraph graph.KnowledgeBaseGraphURI, apiSecret string) *gin.Engine {
 	router := gin.Default()
-	router.Use(validateGraphParameter([]graph.TargetGraph{graph.TargetGraph(ontologyGraph), graph.TargetGraph(knowledgeBaseGraph)}))
 	router.Use(authenticate(apiSecret))
+	router.Use(validateGraphParameter([]graph.TargetGraph{graph.TargetGraph(ontologyGraph), graph.TargetGraph(knowledgeBaseGraph)}))
 	router.GET(string(Triples), getHandler(s))
 	router.POST(string(Triples), postHandler(s))
 
