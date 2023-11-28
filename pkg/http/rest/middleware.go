@@ -21,3 +21,14 @@ func validateGraphParameter(validGraphs []graph.TargetGraph) gin.HandlerFunc {
 		c.Abort()
 	}
 }
+
+func authenticate(secret string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.GetHeader("Authorization") != secret {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
