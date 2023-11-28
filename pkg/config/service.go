@@ -21,6 +21,7 @@ type Config struct {
 	OntologyGraphURI GraphURI
 	GraphURI         GraphURI
 	TestGraphURI     GraphURI
+	APISecret        string
 	VirtuosoUsername string
 	VirtuosoPassword string
 }
@@ -36,6 +37,7 @@ func Load(rootPath string, config *Config) {
 	config.VirtuosoUsername = mustGetENV("VIRTUOSO_USERNAME")
 	config.VirtuosoPassword = mustGetENV("VIRTUOSO_PASSWORD")
 	config.OntologyGraphURI = GraphURI(mustGetENV("VIRTUOSO_ONTOLOGY_GRAPH_URI"))
+	config.APISecret = mustGetENV("API_SECRET")
 }
 
 func mustGetENV(key string) string {
