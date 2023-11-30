@@ -1,0 +1,81 @@
+name: Test and deploy
+
+on:
+  push:
+    branches: '*'
+
+jobs:
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # Use docker.io for Docker Hub if empty
+      REGISTRY: ghcr.io
+      # github.repository as <account>/<repo>
+      IMAGE_NAME: ${{ github.repository }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+  test:
+    runs-on: ubuntu-latest
+    services:
+      virtuoso:
+        image: openlink/virtuoso-opensource-7:latest
+        ports:
+          - 8890:8890
+    env:    
+      VIRTUOSO_SERVER_URL: http://localhost:8890/sparql
+      VIRTUOSO_GRAPH_URI: http://testing
+      VIRTUOSO_TEST_GRAPH_URI: http://testing
+      VIRTUOSO_ONTOLOGY_GRAPH_URI: http://testing
+      VIRTUOSO_USERNAME: ${{ secrets.VIRTUOSO_USERNAME }}
+      VIRTUOSO_PASSWORD: ${{ secrets.VIRTUOSO_PASSWORD }}
+      API_SECRET: _
+
+    steps:
+      - name: Set permissions for virtuoso db directory
+        run: sudo chmod -R 777 ${{ github.workspace }}/knox_virtuoso_db || true
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Sleep seconds
+        run: sleep 10
+
+      - name: Health check
+        id: test_virtuoso
+        run: |
+          OUTPUT=$(curl -s -H "Accept: application/json" -G --data-urlencode "query=select * where {?s ?p ?o} LIMIT 10" $VIRTUOSO_SERVER_URL)
+          echo "::set-output name=response::$OUTPUT"
+        shell: bash
+
+      - name: Run Go Tests
+        run: go test ./...

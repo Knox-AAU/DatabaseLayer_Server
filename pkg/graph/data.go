@@ -1,29 +1,41 @@
 package graph
 
-type DataType int
-
-const (
-	URI DataType = iota
-	Literal
+type (
+	Parameter                 string
+	TargetGraph               string
+	OntologyGraphURI          TargetGraph
+	KnowledgeBaseGraphURI     TargetGraph
+	TestKnowledgeBaseGraphURI TargetGraph
 )
 
-type Attribute string
-
 const (
-	Subject   Attribute = "s"
-	Predicate Attribute = "p"
-	Object    Attribute = "o"
+	// Subject matches with the json tag of the subject in the get query
+	Subject Parameter = "s"
+	// Predicate matches with the json tag of the predicate in the get query
+	Predicate Parameter = "p"
+	// Object matches with the json tag of the object in the get query
+	Object Parameter = "o"
+	Graph  Parameter = "g"
 )
 
-// Triple requires the json tags to match with the queries that are used to retrieve it.
+// GetTriple requires the json tags to match with the queries that are used to retrieve it.
 // swagger:model
-type Triple struct {
+type GetTriple struct {
 	// S is the subject
 	S BindingAttribute `json:"s"`
 	// P is the predicate
 	P BindingAttribute `json:"p"`
 	// O is the object
 	O BindingAttribute `json:"o"`
+}
+
+//swagger:model
+type PostBody struct {
+	// Triples is an array of triples.
+	// Each triple's first element is the subject, second is the predicate and third is the object.
+	// Only accepts exactly 3 elements per triple.
+	// required: true
+	Triples [][]string `json:"triples"`
 }
 
 // swagger:model
@@ -34,6 +46,6 @@ type BindingAttribute struct {
 
 type VirtuosoResponse struct {
 	Results struct {
-		Bindings []Triple
+		Bindings []GetTriple
 	}
 }

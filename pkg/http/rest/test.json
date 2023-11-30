@@ -1,0 +1,6 @@
+{
+    "triples": [
+      ["http://test1", "http://test1", "http://test1"],
+      ["http://test2", "http://test2", "http://test2"]
+    ]
+}

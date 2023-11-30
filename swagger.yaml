@@ -10,19 +10,7 @@ definitions:
                 type: string
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
-    Result:
-        properties:
-            query:
-                type: string
-                x-go-name: Query
-            triples:
-                items:
-                    $ref: '#/definitions/Triple'
-                type: array
-                x-go-name: Triples
-        type: object
-        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest
-    Triple:
+    GetTriple:
         properties:
             o:
                 $ref: '#/definitions/BindingAttribute'
@@ -30,23 +18,53 @@ definitions:
                 $ref: '#/definitions/BindingAttribute'
             s:
                 $ref: '#/definitions/BindingAttribute'
-        title: Triple requires the json tags to match with the queries that are used to retrieve it.
+        title: GetTriple requires the json tags to match with the queries that are used to retrieve it.
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
-host: localhost:8080
+    PostBody:
+        properties:
+            triples:
+                description: |-
+                    Triples is an array of triples.
+                    Each triple's first element is the subject, second is the predicate and third is the object.
+                    Only accepts exactly 3 elements per triple.
+                items:
+                    items:
+                        type: string
+                    type: array
+                type: array
+                x-go-name: Triples
+        required:
+            - triples
+        type: object
+        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph
+    Result:
+        properties:
+            query:
+                type: string
+                x-go-name: Query
+            triples:
+                items:
+                    $ref: '#/definitions/GetTriple'
+                type: array
+                x-go-name: Triples
+        type: object
+        x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest
+host: http://192.38.54.90
 info:
-    description: This repository implements a server to facilitate communication on the KNOX pipeline.
+    description: REST API for the KNOX database.
     title: Database Layer Server API.
-    version: 0.0.1
 paths:
-    /get:
+    /triples:
         get:
-            description: |-
-                Example query: {{url}}/get?p=x&p=y&s=x&s=y&o=x&o=y
-
-                To query the whole graph, leave all parameters empty.
-            operationId: get
+            description: To query the whole graph, leave parameters empty.
+            operationId: getTriples
             parameters:
+                - description: Target graph
+                  in: query
+                  name: g
+                  required: true
+                  type: string
                 - description: Subjects
                   in: query
                   items:
@@ -71,12 +89,31 @@ paths:
                 "200":
                     description: filtered triples response
                     schema:
-                        items:
-                            $ref: '#/definitions/Result'
-                        type: array
-            summary: This endpoint allows for querying with filters.
-            tags:
-                - get
+                        $ref: '#/definitions/Result'
+            summary: This endpoint queries the graph for triples applying filters.
+        post:
+            description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
+            operationId: UpsertTriples
+            parameters:
+                - description: Target graph
+                  in: query
+                  name: g
+                  required: true
+                  type: string
+                - description: Triples to upsert
+                  in: body
+                  name: triples
+                  required: true
+                  schema:
+                    $ref: '#/definitions/PostBody'
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: response with produced query and null value for triples
+                    schema:
+                        $ref: '#/definitions/Result'
+            summary: This endpoint upserts triples.
 produces:
     - application/json
 schemes:

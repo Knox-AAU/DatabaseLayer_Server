@@ -1,16 +1,29 @@
 package rest
 
 import (
+	"net/http"
+
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 	"github.com/gin-gonic/gin"
 )
 
-var Get = "/get"
+type (
+	Route  string
+	Method string
+)
 
-func NewRouter(s graph.Service) *gin.Engine {
+const (
+	Triples Route  = "/triples"
+	GET     Method = http.MethodGet
+	POST    Method = http.MethodPost
+)
+
+func NewRouter(s graph.Service, ontologyGraph graph.OntologyGraphURI, knowledgeBaseGraph graph.KnowledgeBaseGraphURI, apiSecret string) *gin.Engine {
 	router := gin.Default()
-	router.GET(Get, func(c *gin.Context) {
-		getHandler(c, s)
-	})
+	router.Use(authenticate(apiSecret))
+	router.Use(validateGraphParameter([]graph.TargetGraph{graph.TargetGraph(ontologyGraph), graph.TargetGraph(knowledgeBaseGraph)}))
+	router.GET(string(Triples), getHandler(s))
+	router.POST(string(Triples), postHandler(s))
+
 	return router
 }

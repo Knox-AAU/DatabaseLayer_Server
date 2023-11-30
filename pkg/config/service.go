@@ -9,20 +9,35 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Repository struct {
-	VirtuosoServerURL string
-	GraphURI          string
-	TestGraphURI      string
+type (
+	// GraphURI is used for type safety
+	GraphURI string
+	// VirtuosoURL is used for type safety
+	VirtuosoURL string
+)
+
+type Config struct {
+	VirtuosoURL      VirtuosoURL
+	OntologyGraphURI GraphURI
+	GraphURI         GraphURI
+	TestGraphURI     GraphURI
+	APISecret        string
+	VirtuosoUsername string
+	VirtuosoPassword string
 }
 
-func Load(rootPath string, config *Repository) {
+func Load(rootPath string, config *Config) {
 	if err := godotenv.Load(filepath.Join(strings.TrimSpace(rootPath), ".env")); err != nil {
 		log.Println("ignoring error when loading env file:", err)
 	}
 
-	config.VirtuosoServerURL = mustGetENV("VIRTUOSO_SERVER_URL")
-	config.GraphURI = mustGetENV("VIRTUOSO_GRAPH_URI")
-	config.TestGraphURI = mustGetENV("VIRTUOSO_TEST_GRAPH_URI")
+	config.VirtuosoURL = VirtuosoURL(mustGetENV("VIRTUOSO_SERVER_URL"))
+	config.GraphURI = GraphURI(mustGetENV("VIRTUOSO_GRAPH_URI"))
+	config.TestGraphURI = GraphURI(mustGetENV("VIRTUOSO_TEST_GRAPH_URI"))
+	config.VirtuosoUsername = mustGetENV("VIRTUOSO_USERNAME")
+	config.VirtuosoPassword = mustGetENV("VIRTUOSO_PASSWORD")
+	config.OntologyGraphURI = GraphURI(mustGetENV("VIRTUOSO_ONTOLOGY_GRAPH_URI"))
+	config.APISecret = mustGetENV("API_SECRET")
 }
 
 func mustGetENV(key string) string {
@@ -30,5 +45,6 @@ func mustGetENV(key string) string {
 	if value == "" {
 		log.Fatalf("Missing ENV key: %s\n", key)
 	}
+
 	return value
 }

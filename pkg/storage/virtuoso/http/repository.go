@@ -8,39 +8,14 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/graph"
 )
 
 type virtuosoRepository struct {
-	VirtuosoServerURL string
-}
-
-func NewVirtuosoRepository(url string) graph.Repository {
-	return &virtuosoRepository{
-		VirtuosoServerURL: url,
-	}
-}
-
-func (r virtuosoRepository) Execute(query string) ([]graph.Triple, error) {
-	res, err := http.Get(r.VirtuosoServerURL + "?" + encode(query))
-	if err != nil {
-		for _, c := range r.VirtuosoServerURL {
-			fmt.Print(string(c) + ", ")
-		}
-		fmt.Print("\n")
-		log.Println("error when executing query:", err)
-		return nil, err
-	}
-
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(res.Body)
-
-	virtuosoRes := graph.VirtuosoResponse{}
-	if err := json.Unmarshal(buf.Bytes(), &virtuosoRes); err != nil {
-		return nil, err
-	}
-
-	return virtuosoRes.Results.Bindings, nil
+	VirtuosoServerURL config.VirtuosoURL
+	Username          string
+	Password          string
 }
 
 // encode adds necessary parameters for virtuoso
@@ -49,4 +24,66 @@ func encode(query string) string {
 	params.Add("query", query)
 	params.Add("format", "json")
 	return params.Encode()
+}
+
+func NewVirtuosoRepository(url config.VirtuosoURL, username, password string) graph.Repository {
+	return &virtuosoRepository{
+		VirtuosoServerURL: url,
+		Username:          username,
+		Password:          password,
+	}
+}
+
+func (r virtuosoRepository) send(request *http.Request) (*http.Response, error) {
+	request.SetBasicAuth(r.Username, r.Password)
+	res, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("executing request: %w", err)
+	}
+
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("unauthorized request")
+	}
+
+	return res, nil
+}
+
+func (r virtuosoRepository) ExecuteGET(query string) ([]graph.GetTriple, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", r.VirtuosoServerURL, encode(query)), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %w", err)
+	}
+
+	response, err := r.send(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing query: %w", err)
+	}
+
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(response.Body); err != nil {
+		return nil, fmt.Errorf("reading response: %w", err)
+	}
+
+	virtuosoRes := graph.VirtuosoResponse{}
+	if err := json.Unmarshal(buf.Bytes(), &virtuosoRes); err != nil {
+		log.Println((buf.String()))
+		return nil, fmt.Errorf("error unmarshalling response: %s", err.Error())
+	}
+
+	return virtuosoRes.Results.Bindings, nil
+}
+
+func (r virtuosoRepository) ExeutePOST(query string) error {
+	req, err := http.NewRequest("POST", string(r.VirtuosoServerURL), bytes.NewBuffer([]byte(query)))
+	if err != nil {
+		return fmt.Errorf("creating request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/sparql-update")
+	_, err = r.send(req)
+	if err != nil {
+		return fmt.Errorf("executing query: %w", err)
+	}
+
+	return nil
 }
