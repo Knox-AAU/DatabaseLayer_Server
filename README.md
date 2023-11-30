@@ -1,9 +1,8 @@
-# DatabaseLayer_Server 
+# DatabaseLayer_Server
 
-Go REST API with CRUD operations for Knox database
+Go REST API with CRUD operations for Knox database.
+
 The code can be found in this [repository](https://github.com/Knox-AAU/DatabaseLayer_Server).
-
-The Access API documentation can temporarily be found [here](/DataLayer/access-api)
 
 ## Generate new documentation based on code
 
