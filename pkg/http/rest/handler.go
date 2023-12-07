@@ -118,7 +118,7 @@ func postHandler(s graph.Service) func(c *gin.Context) {
 	//   type: string
 	// - name: triples
 	//   in: body
-	//   description: Triples to upsert
+	//   description: Triples to upsert. Each triple must contain a subject, predicate and object, in that order.
 	//   required: true
 	//   schema:
 	//     "$ref": "#/definitions/PostBody"

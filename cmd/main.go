@@ -5,7 +5,7 @@
 // Terms Of Service:
 //
 //	Schemes: http
-//	Host: http://192.38.54.90
+//	Host: http://knox-proxy01.srv.aau.dk/knox-api
 //	BasePath: /
 //
 //	Consumes:
@@ -18,7 +18,7 @@
 package main
 
 //go:generate swagger generate spec -m -o ../swagger.yaml
-//go:generate openapi-markdown -i ../swagger.yaml
+//go:generate widdershins swagger.yaml -o swagger.md
 
 import (
 	"github.com/Knox-AAU/DatabaseLayer_Server/pkg/config"

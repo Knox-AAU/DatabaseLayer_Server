@@ -50,7 +50,7 @@ definitions:
                 x-go-name: Triples
         type: object
         x-go-package: github.com/Knox-AAU/DatabaseLayer_Server/pkg/http/rest
-host: http://192.38.54.90
+host: http://knox-proxy01.srv.aau.dk/knox-api
 info:
     description: REST API for the KNOX database.
     title: Database Layer Server API.
@@ -104,7 +104,7 @@ paths:
                   name: g
                   required: true
                   type: string
-                - description: Triples to upsert
+                - description: Triples to upsert. Each triple must contain a subject, predicate and object, in that order.
                   example:
                     triples:
                         - object: http://knox_database/object1
