@@ -67,11 +67,12 @@ Note that the ports map to the ports used in the ssh command.
 #### GET
 ##### Summary:
 
-This endpoint queries the graph for triples applying filters.
+Query graph applying filters.
 
 ##### Description:
 
 To query the whole graph, leave parameters empty.
+Example: /triples?g=http://knox_database&s=subjekt1&s=subjekt2&o=object1&p=predicate1
 
 ##### Parameters
 

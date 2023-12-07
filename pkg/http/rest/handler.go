@@ -19,9 +19,10 @@ type Result struct {
 func getHandler(s graph.Service) func(c *gin.Context) {
 	// swagger:operation GET /triples getTriples
 	//
-	// This endpoint queries the graph for triples applying filters.
+	// Query graph applying filters.
 	//
 	// To query the whole graph, leave parameters empty.
+	// Example: /triples?g=http://knox_database&s=subjekt1&s=subjekt2&o=object1&p=predicate1
 	//
 	// ---
 	// produces:
@@ -121,6 +122,14 @@ func postHandler(s graph.Service) func(c *gin.Context) {
 	//   required: true
 	//   schema:
 	//     "$ref": "#/definitions/PostBody"
+	//   example:
+	//     triples:
+	//     - subject: http://knox_database/subject1
+	//       predicate: http://knox_database/predicate1
+	//       object: http://knox_database/object1
+	//     - subject: http://knox_database/subject2
+	//       predicate: http://knox_database/predicate2
+	//       object: http://knox_database/object2
 	// responses:
 	//   '200':
 	//     description: response with produced query and null value for triples

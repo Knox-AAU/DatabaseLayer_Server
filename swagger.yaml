@@ -57,7 +57,9 @@ info:
 paths:
     /triples:
         get:
-            description: To query the whole graph, leave parameters empty.
+            description: |-
+                To query the whole graph, leave parameters empty.
+                Example: /triples?g=http://knox_database&s=subjekt1&s=subjekt2&o=object1&p=predicate1
             operationId: getTriples
             parameters:
                 - description: Target graph of the query. Currently (http://knox_ontology, http://knox_database) are valid graphs, but this could change in the future. Error responses will always contain the valid graphs, so you can just send an empty request to get the valid graphs.
@@ -91,7 +93,7 @@ paths:
                     description: filtered triples response
                     schema:
                         $ref: '#/definitions/Result'
-            summary: This endpoint queries the graph for triples applying filters.
+            summary: Query graph applying filters.
         post:
             description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
             operationId: UpsertTriples
@@ -103,6 +105,14 @@ paths:
                   required: true
                   type: string
                 - description: Triples to upsert
+                  example:
+                    triples:
+                        - object: http://knox_database/object1
+                          predicate: http://knox_database/predicate1
+                          subject: http://knox_database/subject1
+                        - object: http://knox_database/object2
+                          predicate: http://knox_database/predicate2
+                          subject: http://knox_database/subject2
                   in: body
                   name: triples
                   required: true
