@@ -32,6 +32,6 @@ func main() {
 	config.Load("..", &appRepository)
 	virtuosoRepository := virtuoso.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
-	router := rest.NewRouter(service, graph.OntologyGraphURI(appRepository.OntologyGraphURI), graph.KnowledgeBaseGraphURI(appRepository.GraphURI))
+	router := rest.NewRouter(service, graph.OntologyGraphURI(appRepository.OntologyGraphURI), graph.KnowledgeBaseGraphURI(appRepository.GraphURI), appRepository.APISecret)
 	router.Run(":8000")
 }

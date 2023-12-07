@@ -1,9 +1,8 @@
-# DatabaseLayer_Server 
+# DatabaseLayer_Server
 
-Go REST API with CRUD operations for Knox database
+Go REST API with CRUD operations for Knox database.
+
 The code can be found in this [repository](https://github.com/Knox-AAU/DatabaseLayer_Server).
-
-The Access API documentation can temporarily be found [here](/DataLayer/access-api)
 
 ## Generate new documentation based on code
 
@@ -47,14 +46,14 @@ The code for this project (including tests) accesses Virtuoso on port 8890, whic
 
 ### Access our database layer API
 
-`ssh <STUDENT_MAIL>@knox-kb01.srv.aau.dk -L <your_port>:localhost:80`
+`ssh <STUDENT_MAIL>@knox-kb01.srv.aau.dk -L <your_port>:localhost:8000`
 
 #### Deploy new version manually
 
 Deployment is normally handled by watchtower on push to main. However, in case of the need of manual deployment, run
 
 ```bash
-docker run -p 0.0.0.0:80:8000 --add-host=host.docker.internal:host-gateway -e VIRTUOSO_SERVER_URL=http://host.docker.internal:8890/sparql/ -e VIRTUOSO_GRAPH_URI=http://knox_ontology/ -e VIRTUOSO_ONTOLOGY_GRAPH_URI=http://knox_ontology/ -e VIRTUOSO_TEST_GRAPH_URI=http://testing/ -e VIRTUOSO_USERNAME=dba -e VIRTUOSO_PASSWORD=*** -d ghcr.io/knox-aau/databaselayer_server:main
+docker run -p 0.0.0.0:8000:8000 --add-host=host.docker.internal:host-gateway -e VIRTUOSO_SERVER_URL=http://host.docker.internal:8890/sparql/ -e VIRTUOSO_GRAPH_URI=http://knox_ontology -e VIRTUOSO_ONTOLOGY_GRAPH_URI=http://knox_database -e VIRTUOSO_TEST_GRAPH_URI=http://testing -e VIRTUOSO_USERNAME=dba -e VIRTUOSO_PASSWORD=*** -e API_SECRET=*** -d ghcr.io/knox-aau/databaselayer_server:main
 ```
 
 Note that the ports map to the ports used in the ssh command. 

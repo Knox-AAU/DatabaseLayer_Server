@@ -53,6 +53,7 @@ jobs:
       VIRTUOSO_ONTOLOGY_GRAPH_URI: http://testing
       VIRTUOSO_USERNAME: ${{ secrets.VIRTUOSO_USERNAME }}
       VIRTUOSO_PASSWORD: ${{ secrets.VIRTUOSO_PASSWORD }}
+      API_SECRET: _
 
     steps:
       - name: Set permissions for virtuoso db directory

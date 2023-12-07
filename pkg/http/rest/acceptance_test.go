@@ -26,8 +26,9 @@ type (
 )
 
 const (
-	GET  method = "GET"
-	POST method = "POST"
+	GET       method = "GET"
+	POST      method = "POST"
+	apiSecret        = "secret"
 )
 
 func createRandomTriple() (*graph.GetTriple, error) {
@@ -141,7 +142,7 @@ func setupApp() (*gin.Engine, config.GraphURI) {
 
 	virtuosoRepository := http.NewVirtuosoRepository(appRepository.VirtuosoURL, appRepository.VirtuosoUsername, appRepository.VirtuosoPassword)
 	service := graph.NewService(virtuosoRepository)
-	router := rest.NewRouter(service, graph.OntologyGraphURI(testingOntologyURI), graph.KnowledgeBaseGraphURI(testingKnowledgebaseURI))
+	router := rest.NewRouter(service, graph.OntologyGraphURI(testingOntologyURI), graph.KnowledgeBaseGraphURI(testingKnowledgebaseURI), apiSecret)
 
 	return router, appRepository.TestGraphURI
 }
@@ -168,6 +169,8 @@ func doRequest(router *gin.Engine, path string, t *testing.T, _method method, bo
 	}
 
 	require.NoError(t, err)
+
+	req.Header.Set("Authorization", apiSecret)
 
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
