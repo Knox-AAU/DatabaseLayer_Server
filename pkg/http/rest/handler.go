@@ -29,7 +29,7 @@ func getHandler(s graph.Service) func(c *gin.Context) {
 	// parameters:
 	// - name: g
 	//   in: query
-	//   description: Target graph of the query. Only valid graphs will be accepted. If the graph does not exist, the error response will contain the valid graphs.
+	//   description: Target graph of the query. Currently (http://knox_ontology, http://knox_database) are valid graphs, but this could change in the future. Error responses will always contain the valid graphs, so you can just send an empty request to get the valid graphs.
 	//   required: true
 	//   type: string
 	//   example: http://knox_database

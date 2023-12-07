@@ -1,5 +1,7 @@
 # DatabaseLayer_Server
 
+Host: [http://knox-proxy01.srv.aau.dk/knox-api](http://knox-proxy01.srv.aau.dk/knox-api)
+
 Go REST API with CRUD operations for Knox database.
 
 The code can be found in this [repository](https://github.com/Knox-AAU/DatabaseLayer_Server).
@@ -75,7 +77,7 @@ To query the whole graph, leave parameters empty.
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| g | query | Target graph of the query. Only valid graphs will be accepted. If the graph does not exist, the error response will contain the valid graphs. | Yes | string |
+| g | query | Target graph of the query. Currently (http://knox_ontology, http://knox_database) are valid graphs, but this could change in the future. Error responses will always contain the valid graphs, so you can just send an empty request to get the valid graphs. | Yes | string |
 | s | query | Subjects | No | [ string ] |
 | o | query | Objects | No | [ string ] |
 | p | query | Predicates | No | [ string ] |
