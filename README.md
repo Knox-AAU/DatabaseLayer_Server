@@ -76,7 +76,7 @@ To query the whole graph, leave parameters empty.
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| g | query | Target graph | Yes | string |
+| g | query | Target graph of the query. Only valid graphs will be accepted. If the graph does not exist, the error response will contain the valid graphs. | Yes | string |
 | s | query | Subjects | No | [ string ] |
 | o | query | Objects | No | [ string ] |
 | p | query | Predicates | No | [ string ] |
@@ -100,7 +100,7 @@ If a new predicate is sent with an existing subject, will the existing subject b
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| g | query | Target graph | Yes | string |
+| g | query | Target graph of the query. Only valid graphs will be accepted. If the graph does not exist, the error response will contain the valid graphs. | Yes | string |
 | triples | body | Triples to upsert | Yes | [PostBody](#postbody) |
 
 ##### Responses

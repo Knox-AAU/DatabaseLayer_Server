@@ -29,9 +29,10 @@ func getHandler(s graph.Service) func(c *gin.Context) {
 	// parameters:
 	// - name: g
 	//   in: query
-	//   description: Target graph
+	//   description: Target graph of the query. Only valid graphs will be accepted. If the graph does not exist, the error response will contain the valid graphs.
 	//   required: true
 	//   type: string
+	//   example: http://knox_database
 	// - name: s
 	//   in: query
 	//   description: Subjects
@@ -110,8 +111,9 @@ func postHandler(s graph.Service) func(c *gin.Context) {
 	// parameters:
 	// - name: g
 	//   in: query
-	//   description: Target graph
+	//   description: Target graph of the query. Only valid graphs will be accepted. If the graph does not exist, the error response will contain the valid graphs.
 	//   required: true
+	//   example: http://knox_database
 	//   type: string
 	// - name: triples
 	//   in: body

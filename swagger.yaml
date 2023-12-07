@@ -60,7 +60,8 @@ paths:
             description: To query the whole graph, leave parameters empty.
             operationId: getTriples
             parameters:
-                - description: Target graph
+                - description: Target graph of the query. Only valid graphs will be accepted. If the graph does not exist, the error response will contain the valid graphs.
+                  example: http://knox_database
                   in: query
                   name: g
                   required: true
@@ -95,7 +96,8 @@ paths:
             description: If a new predicate is sent with an existing subject, will the existing subject be updated with the new predicate.
             operationId: UpsertTriples
             parameters:
-                - description: Target graph
+                - description: Target graph of the query. Only valid graphs will be accepted. If the graph does not exist, the error response will contain the valid graphs.
+                  example: http://knox_database
                   in: query
                   name: g
                   required: true
